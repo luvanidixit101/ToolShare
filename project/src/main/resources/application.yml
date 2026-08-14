@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: ToolShare
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+server:
+  port: 8080

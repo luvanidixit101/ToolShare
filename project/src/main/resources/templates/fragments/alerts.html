@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="alerts" class="alert-container">
+    <div th:if="${success != null}" class="alert alert-success alert-dismissible">
+        <i class="bi bi-check-circle"></i>
+        <span th:text="${success}">Success message</span>
+        <button class="alert-close" aria-label="Close"><i class="bi bi-x"></i></button>
+    </div>
+    <div th:if="${error != null}" class="alert alert-danger alert-dismissible">
+        <i class="bi bi-exclamation-circle"></i>
+        <span th:text="${error}">Error message</span>
+        <button class="alert-close" aria-label="Close"><i class="bi bi-x"></i></button>
+    </div>
+    <div th:if="${warning != null}" class="alert alert-warning alert-dismissible">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span th:text="${warning}">Warning message</span>
+        <button class="alert-close" aria-label="Close"><i class="bi bi-x"></i></button>
+    </div>
+    <div th:if="${info != null}" class="alert alert-info alert-dismissible">
+        <i class="bi bi-info-circle"></i>
+        <span th:text="${info}">Info message</span>
+        <button class="alert-close" aria-label="Close"><i class="bi bi-x"></i></button>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,301 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  MapPin, Heart, Share2, Calendar, Shield, Star, ChevronLeft, ChevronRight,
+  MessageSquare, ArrowLeft, CheckCircle2, User as UserIcon,
+} from 'lucide-react';
+import { getToolById, getReviews } from '@/services/toolService';
+import { createBooking } from '@/services/bookingService';
+import type { Tool, Review } from '@/types';
+import { formatPrice, formatDate, conditionLabels, classNames } from '@/utils';
+import StarRating from '@/components/common/StarRating';
+import { FullPageSpinner } from '@/components/common/LoadingSpinner';
+import { ErrorState, EmptyState } from '@/components/common/EmptyState';
+import Modal from '@/components/common/Modal';
+import { toast } from '@/components/common/Toast';
+import { useAuth } from '@/context/AuthContext';
+
+export default function ToolDetails() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [tool, setTool] = useState<Tool | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState(0);
+  const [fav, setFav] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    Promise.all([getToolById(id), getReviews(id)])
+      .then(([t, r]) => {
+        setTool(t);
+        setReviews(r);
+      })
+      .catch((err) => setError(err?.message || 'Failed to load tool details'))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const daysBetween = (s: string, e: string) => {
+    const d = new Date(e).getTime() - new Date(s).getTime();
+    return Math.max(1, Math.ceil(d / 86400000));
+  };
+
+  const totalPrice = tool && startDate && endDate
+    ? tool.pricePerDay * daysBetween(startDate, endDate)
+    : 0;
+
+  const handleBooking = async () => {
+    if (!isAuthenticated) {
+      navigate('/auth/login', { state: { from: `/tools/${id}` } });
+      return;
+    }
+    if (!startDate || !endDate) {
+      toast('error', 'Please select booking dates.');
+      return;
+    }
+    setBookingLoading(true);
+    try {
+      await createBooking({ toolId: id!, startDate, endDate });
+      toast('success', 'Booking request sent! The owner will respond shortly.');
+      setBookingOpen(false);
+      navigate('/bookings');
+    } catch (err: any) {
+      toast('error', err?.message || 'Failed to create booking.');
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  if (loading) return <FullPageSpinner label="Loading tool details..." />;
+  if (error) return <div className="max-w-3xl mx-auto py-12"><ErrorState message={error} onRetry={() => navigate(0)} /></div>;
+  if (!tool) return <div className="max-w-3xl mx-auto py-12"><EmptyState title="Tool not found" message="This tool may have been removed." /></div>;
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Link to="/tools" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-4">
+        <ArrowLeft size={16} /> Back to tools
+      </Link>
+
+      <div className="grid lg:grid-cols-5 gap-8">
+        {/* Left: Gallery + details */}
+        <div className="lg:col-span-3">
+          {/* Gallery */}
+          <div className="card overflow-hidden">
+            <div className="relative h-80 sm:h-96 bg-gray-100">
+              <img src={tool.images[activeImage]} alt={tool.name} className="w-full h-full object-cover" />
+              {tool.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setActiveImage((i) => (i - 1 + tool.images.length) % tool.images.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={() => setActiveImage((i) => (i + 1) % tool.images.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
+              <div className="absolute top-3 right-3 flex gap-2">
+                <button onClick={() => setFav(!fav)} className="w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white">
+                  <Heart size={18} className={classNames(fav ? 'text-red-500 fill-red-500' : 'text-gray-600')} />
+                </button>
+                <button onClick={() => toast('info', 'Link copied to clipboard!')} className="w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white">
+                  <Share2 size={18} className="text-gray-600" />
+                </button>
+              </div>
+            </div>
+            {tool.images.length > 1 && (
+              <div className="flex gap-2 p-3 overflow-x-auto">
+                {tool.images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(i)}
+                    className={classNames(
+                      'w-20 h-20 rounded-lg overflow-hidden shrink-0 border-2 transition-colors',
+                      i === activeImage ? 'border-primary-500' : 'border-transparent'
+                    )}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Title + meta */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="badge bg-primary-50 text-primary-700 px-3 py-1">{tool.category}</span>
+              <span className="badge bg-gray-100 text-gray-600 px-3 py-1">{conditionLabels[tool.condition]}</span>
+              <span className={classNames('badge px-3 py-1', tool.available ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600')}>
+                {tool.available ? 'Available' : 'Currently Rented'}
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-3">{tool.name}</h1>
+            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+              <span className="flex items-center gap-1"><MapPin size={15} /> {tool.location}</span>
+              <span className="flex items-center gap-1"><StarRating value={tool.rating} size={14} showValue /> ({tool.reviewCount} reviews)</span>
+              <span>{tool.views} views</span>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="mt-6 card p-5">
+            <h2 className="font-semibold text-gray-900 mb-2">Description</h2>
+            <p className="text-gray-600 leading-relaxed">{tool.description}</p>
+          </div>
+
+          {/* Specifications */}
+          <div className="mt-4 card p-5">
+            <h2 className="font-semibold text-gray-900 mb-3">Specifications</h2>
+            {Object.keys(tool.specifications).length > 0 ? (
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                {Object.entries(tool.specifications).map(([key, value]) => (
+                  <div key={key} className="flex justify-between border-b border-gray-100 pb-2">
+                    <dt className="text-sm text-gray-500">{key}</dt>
+                    <dd className="text-sm font-medium text-gray-900">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="text-sm text-gray-400">No specifications provided.</p>
+            )}
+          </div>
+
+          {/* Reviews */}
+          <div className="mt-4 card p-5">
+            <h2 className="font-semibold text-gray-900 mb-4">Reviews ({reviews.length})</h2>
+            {reviews.length === 0 ? (
+              <p className="text-sm text-gray-400">No reviews yet. Be the first to review!</p>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.id} className="flex gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                    <img
+                      src={review.authorAvatar || `https://i.pravatar.cc/100?u=${review.authorName}`}
+                      alt={review.authorName}
+                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-gray-900">{review.authorName}</p>
+                        <span className="text-xs text-gray-400">{formatDate(review.createdAt)}</span>
+                      </div>
+                      <StarRating value={review.rating} size={13} className="mt-1" />
+                      <p className="text-sm text-gray-600 mt-2 leading-relaxed">{review.comment}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Booking sidebar */}
+        <div className="lg:col-span-2">
+          <div className="sticky top-20 space-y-4">
+            {/* Price card */}
+            <div className="card p-5">
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-gray-900">{formatPrice(tool.pricePerDay)}</span>
+                <span className="text-gray-500">/day</span>
+              </div>
+              <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                <Shield size={15} className="text-gray-400" />
+                Security deposit: {formatPrice(tool.securityDeposit)}
+              </div>
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={() => setBookingOpen(true)}
+                  disabled={!tool.available}
+                  className="btn-primary w-full py-3"
+                >
+                  <Calendar size={18} /> {tool.available ? 'Request to Book' : 'Not Available'}
+                </button>
+                <Link to="/chat" className="btn-secondary w-full py-3">
+                  <MessageSquare size={18} /> Contact Owner
+                </Link>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2"><CheckCircle2 size={15} className="text-green-500" /> Free cancellation up to 24h before</div>
+                <div className="flex items-center gap-2"><Shield size={15} className="text-green-500" /> Damage protection included</div>
+                <div className="flex items-center gap-2"><UserIcon size={15} className="text-green-500" /> Verified owner</div>
+              </div>
+            </div>
+
+            {/* Owner card */}
+            <div className="card p-5">
+              <h3 className="text-sm font-semibold text-gray-500 mb-3">Tool Owner</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
+                  {tool.ownerName[0]}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">{tool.ownerName}</p>
+                  <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <Star size={12} className="text-accent-400 fill-accent-400" />
+                    {tool.ownerRating.toFixed(1)} rating
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Booking modal */}
+      <Modal
+        open={bookingOpen}
+        onClose={() => setBookingOpen(false)}
+        title="Request to Book"
+        footer={
+          <>
+            <button onClick={() => setBookingOpen(false)} className="btn-secondary">Cancel</button>
+            <button onClick={handleBooking} disabled={bookingLoading} className="btn-primary">
+              {bookingLoading ? 'Sending...' : 'Send Request'}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="label">Pick-up date</label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="label">Return date</label>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="input" />
+          </div>
+          {startDate && endDate && (
+            <div className="rounded-lg bg-gray-50 p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">{formatPrice(tool.pricePerDay)} x {daysBetween(startDate, endDate)} day{daysBetween(startDate, endDate) !== 1 ? 's' : ''}</span>
+                <span className="font-medium">{formatPrice(totalPrice)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Security deposit</span>
+                <span className="font-medium">{formatPrice(tool.securityDeposit)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-gray-200">
+                <span className="font-semibold">Total</span>
+                <span className="font-bold text-primary-600">{formatPrice(totalPrice + tool.securityDeposit)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+    </div>
+  );
+}

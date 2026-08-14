@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Browse Tools')"></head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="page-content">
+    <div class="container">
+        <div class="browse-header">
+            <div>
+                <h1 class="page-title">Browse Tools</h1>
+                <p class="page-subtitle" th:text="${tools != null ? #lists.size(tools) + ' tools available near you' : '0 tools available'}">tools available</p>
+            </div>
+            <button class="btn btn-outline-primary filter-toggle-btn" id="filterToggleBtn">
+                <i class="bi bi-funnel"></i> Filters
+            </button>
+        </div>
+
+        <div class="browse-layout">
+            <!-- Filter Sidebar -->
+            <aside class="filter-sidebar" id="filterSidebar">
+                <div class="filter-header">
+                    <h3>Filters</h3>
+                    <button class="filter-close" id="filterCloseBtn" aria-label="Close filters">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Search</h4>
+                    <div class="input-wrapper">
+                        <i class="bi bi-search input-icon"></i>
+                        <input type="text" class="form-control input-with-icon" placeholder="Search tools..." id="filterSearch">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Category</h4>
+                    <select class="form-control" id="filterCategory">
+                        <option value="">All categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}">Category</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Location</h4>
+                    <div class="input-wrapper">
+                        <i class="bi bi-geo-alt input-icon"></i>
+                        <input type="text" class="form-control input-with-icon" placeholder="City or ZIP" id="filterLocation">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Price Range</h4>
+                    <div class="price-range-slider">
+                        <div class="price-range-inputs">
+                            <input type="number" class="form-control form-control-sm" placeholder="Min" id="priceMin" min="0">
+                            <span>-</span>
+                            <input type="number" class="form-control form-control-sm" placeholder="Max" id="priceMax" min="0">
+                        </div>
+                        <div class="price-range-display">
+                            <span id="priceRangeDisplay">$0 - $100+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Rating</h4>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="radio" name="rating" value="0" checked> Any rating</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="4.5"> <i class="bi bi-star-fill"></i> 4.5 & up</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="4"> <i class="bi bi-star-fill"></i> 4.0 & up</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="3.5"> <i class="bi bi-star-fill"></i> 3.5 & up</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="3"> <i class="bi bi-star-fill"></i> 3.0 & up</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Availability</h4>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" id="filterAvailable" checked> Available now</label>
+                        <label class="filter-option"><input type="checkbox" id="filterBooked"> Include booked</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Condition</h4>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" name="condition" value="Excellent" checked> Excellent</label>
+                        <label class="filter-option"><input type="checkbox" name="condition" value="Good" checked> Good</label>
+                        <label class="filter-option"><input type="checkbox" name="condition" value="Fair" checked> Fair</label>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn btn-primary btn-block">Apply Filters</button>
+                    <button class="btn btn-outline-secondary btn-block" id="clearFilters">Clear All</button>
+                </div>
+            </aside>
+
+            <div class="filter-overlay" id="filterOverlay"></div>
+
+            <!-- Main Content -->
+            <div class="browse-main">
+                <div class="sort-bar">
+                    <div class="sort-info">
+                        <span th:text="'Showing ' + ${tools != null ? #lists.size(tools) : 0} + ' results'">Showing results</span>
+                    </div>
+                    <div class="sort-control">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy" class="form-control form-control-sm">
+                            <option value="recommended">Recommended</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="newest">Newest</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="tool-grid" th:if="${tools != null and !tools.isEmpty()}">
+                    <div th:each="tool : ${tools}" class="tool-card">
+                        <div class="tool-card-image">
+                            <img th:src="${tool.imageUrl}" th:alt="${tool.name}" loading="lazy">
+                            <button class="favorite-btn" aria-label="Add to favorites" data-favorite>
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            <span class="tool-badge" th:if="${tool.available}">Available</span>
+                            <span class="tool-badge tool-badge-unavailable" th:unless="${tool.available}">Booked</span>
+                        </div>
+                        <div class="tool-card-body">
+                            <div class="tool-card-header">
+                                <span class="tool-category" th:text="${tool.category}">Category</span>
+                                <span class="tool-rating">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span th:text="${tool.rating}">4.8</span>
+                                </span>
+                            </div>
+                            <h3 class="tool-card-title" th:text="${tool.name}">Tool Name</h3>
+                            <p class="tool-card-owner">
+                                <i class="bi bi-person-circle"></i>
+                                <span th:text="${tool.ownerName}">Owner</span>
+                            </p>
+                            <p class="tool-card-location">
+                                <i class="bi bi-geo-alt"></i>
+                                <span th:text="${tool.location}">Location</span>
+                            </p>
+                            <div class="tool-card-footer">
+                                <div class="tool-price">
+                                    <span class="tool-price-amount" th:text="'$' + ${tool.pricePerDay}"></span>
+                                    <span class="tool-price-unit">/ day</span>
+                                </div>
+                                <a th:href="@{/tools/{id}(id=${tool.id})}" class="btn btn-primary btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" th:if="${tools == null or tools.isEmpty()}">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h3>No tools found</h3>
+                    <p>Try adjusting your filters or search terms to find what you're looking for.</p>
+                    <button class="btn btn-primary" id="resetFiltersBtn">Reset Filters</button>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="pagination" th:if="${tools != null and !tools.isEmpty()}">
+                    <button class="pagination-btn" disabled>
+                        <i class="bi bi-chevron-left"></i> Previous
+                    </button>
+                    <div class="pagination-pages">
+                        <button class="pagination-page active">1</button>
+                        <button class="pagination-page">2</button>
+                        <button class="pagination-page">3</button>
+                        <span class="pagination-ellipsis">...</span>
+                        <button class="pagination-page">8</button>
+                    </div>
+                    <button class="pagination-btn">
+                        Next <i class="bi bi-chevron-right"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

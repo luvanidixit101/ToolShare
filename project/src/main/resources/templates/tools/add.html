@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Add Tool')"></head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="page-content">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a th:href="@{/}">Home</a>
+            <i class="bi bi-chevron-right"></i>
+            <a th:href="@{/tools/my-tools}">My Tools</a>
+            <i class="bi bi-chevron-right"></i>
+            <span class="breadcrumb-active">Add New Tool</span>
+        </nav>
+
+        <div class="form-page">
+            <div class="form-page-header">
+                <h1 class="page-title">List a New Tool</h1>
+                <p class="page-subtitle">Share your tool with the community and start earning</p>
+            </div>
+
+            <div th:replace="fragments/alerts :: alerts"></div>
+
+            <form th:action="@{/tools/add}" method="post" class="tool-form" id="addToolForm" novalidate>
+                <!-- Image Upload Section -->
+                <div class="form-card">
+                    <h2 class="form-card-title">
+                        <i class="bi bi-camera"></i> Tool Photos
+                    </h2>
+                    <p class="form-card-desc">Add up to 5 photos. Good photos help your listing stand out and increase bookings.</p>
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <input type="file" id="toolImages" name="images" accept="image/*" multiple hidden>
+                        <label for="toolImages" class="image-upload-label">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                            <span>Click to upload photos</span>
+                            <span class="text-muted small">PNG, JPG up to 5MB each</span>
+                        </label>
+                        <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                    </div>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="form-card">
+                    <h2 class="form-card-title">
+                        <i class="bi bi-info-circle"></i> Basic Information
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="toolName" class="form-label">Tool Name <span class="required">*</span></label>
+                            <input type="text" id="toolName" name="name" class="form-control"
+                                   placeholder="e.g. DeWalt 20V Cordless Drill" required>
+                            <span class="form-error" data-error-for="toolName"></span>
+                            <span class="form-hint">Be specific — include brand, model, and key specs</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="toolCategory" class="form-label">Category <span class="required">*</span></label>
+                            <select id="toolCategory" name="category" class="form-control" required>
+                                <option value="">Select a category</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}">Category</option>
+                            </select>
+                            <span class="form-error" data-error-for="toolCategory"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="toolDescription" class="form-label">Description <span class="required">*</span></label>
+                        <textarea id="toolDescription" name="description" class="form-control" rows="4"
+                                  placeholder="Describe your tool, what it's good for, any included accessories..." required></textarea>
+                        <span class="form-error" data-error-for="toolDescription"></span>
+                        <span class="form-hint">Minimum 50 characters. Include condition details and use cases.</span>
+                    </div>
+                </div>
+
+                <!-- Condition & Specs -->
+                <div class="form-card">
+                    <h2 class="form-card-title">
+                        <i class="bi bi-gear"></i> Condition & Specifications
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="toolCondition" class="form-label">Condition <span class="required">*</span></label>
+                            <select id="toolCondition" name="condition" class="form-control" required>
+                                <option value="">Select condition</option>
+                                <option value="Excellent">Excellent - Like new</option>
+                                <option value="Good">Good - Lightly used</option>
+                                <option value="Fair">Fair - Functional with wear</option>
+                            </select>
+                            <span class="form-error" data-error-for="toolCondition"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="toolSpecifications" class="form-label">Specifications</label>
+                            <input type="text" id="toolSpecifications" name="specifications" class="form-control"
+                                   placeholder="e.g. 20V, 2Ah battery, 1/2 inch chuck">
+                            <span class="form-hint">Key specs separated by commas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Location -->
+                <div class="form-card">
+                    <h2 class="form-card-title">
+                        <i class="bi bi-cash"></i> Pricing & Location
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pricePerDay" class="form-label">Price per Day ($) <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-currency-dollar input-icon"></i>
+                                <input type="number" id="pricePerDay" name="pricePerDay" class="form-control input-with-icon"
+                                       placeholder="25.00" min="1" step="0.01" required>
+                            </div>
+                            <span class="form-error" data-error-for="pricePerDay"></span>
+                            <span class="form-hint">Competitive pricing leads to more bookings</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="securityDeposit" class="form-label">Security Deposit ($) <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-currency-dollar input-icon"></i>
+                                <input type="number" id="securityDeposit" name="securityDeposit" class="form-control input-with-icon"
+                                       placeholder="50.00" min="0" step="0.01" required>
+                            </div>
+                            <span class="form-error" data-error-for="securityDeposit"></span>
+                            <span class="form-hint">Returned to renter after safe return</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="toolLocation" class="form-label">Location <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-geo-alt input-icon"></i>
+                            <input type="text" id="toolLocation" name="location" class="form-control input-with-icon"
+                                   placeholder="City, State" required>
+                        </div>
+                        <span class="form-error" data-error-for="toolLocation"></span>
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="form-card">
+                    <h2 class="form-card-title">
+                        <i class="bi bi-calendar-check"></i> Availability
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Availability Status</label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="availability" value="available" checked>
+                                <span class="radio-card-content">
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Available for booking</span>
+                                </span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="availability" value="unavailable">
+                                <span class="radio-card-content">
+                                    <i class="bi bi-pause-circle"></i>
+                                    <span>Temporarily unavailable</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a th:href="@{/tools/my-tools}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="button" class="btn btn-outline-primary" id="saveDraftBtn">
+                        <i class="bi bi-file-earmark"></i> Save Draft
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-loading" id="publishBtn">
+                        <span class="btn-text"><i class="bi bi-check-lg"></i> Publish Tool</span>
+                        <span class="btn-spinner"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Messages')"></head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="page-content chat-page">
+    <div class="chat-container">
+        <!-- Conversation List -->
+        <aside class="chat-sidebar" id="chatSidebar">
+            <div class="chat-sidebar-header">
+                <h2>Messages</h2>
+                <button class="chat-icon-btn" aria-label="New message">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+            </div>
+            <div class="chat-search">
+                <div class="input-wrapper">
+                    <i class="bi bi-search input-icon"></i>
+                    <input type="text" class="form-control input-with-icon" placeholder="Search conversations...">
+                </div>
+            </div>
+            <div class="conversation-list">
+                <div th:each="conv, iter : ${conversations}" class="conversation-item"
+                     th:classappend="${iter.first ? 'active' : ''}"
+                     th:attr="data-conversation-id=${conv.id}">
+                    <div class="conversation-avatar">
+                        <span th:text="${conv.avatarInitials}">AB</span>
+                        <span class="online-indicator" th:if="${conv.online}"></span>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h4 th:text="${conv.name}">Name</h4>
+                            <span class="conversation-time" th:text="${conv.time}">Time</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p th:text="${conv.lastMessage}">Last message</p>
+                            <span class="conversation-badge" th:if="${conv.unreadCount > 0}" th:text="${conv.unreadCount}">0</span>
+                        </div>
+                        <span class="conversation-tool" th:if="${conv.toolName != null}" th:text="${conv.toolName}">Tool</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <button class="chat-back-btn" id="chatBackBtn" aria-label="Back to conversations">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="chat-header-info">
+                    <div class="chat-header-avatar">
+                        <span>MJ</span>
+                        <span class="online-indicator"></span>
+                    </div>
+                    <div>
+                        <h3>Mike Johnson</h3>
+                        <span class="chat-header-status"><span class="status-dot status-dot-success"></span> Online</span>
+                    </div>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="chat-icon-btn" aria-label="Call"><i class="bi bi-telephone"></i></button>
+                    <button class="chat-icon-btn" aria-label="Video call"><i class="bi bi-camera-video"></i></button>
+                    <button class="chat-icon-btn" aria-label="More"><i class="bi bi-three-dots"></i></button>
+                </div>
+            </div>
+
+            <div class="chat-tool-bar">
+                <i class="bi bi-tools"></i>
+                <span>Regarding: DeWalt 20V Cordless Drill</span>
+                <a th:href="@{/tools/1}" class="link-primary">View Tool</a>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-date-divider">
+                    <span>Today</span>
+                </div>
+                <div th:each="msg : ${messages}" class="chat-message"
+                     th:classappend="${msg.sentByMe ? 'chat-message-sent' : 'chat-message-received'}">
+                    <div class="chat-message-content">
+                        <p th:text="${msg.content}">Message content</p>
+                        <span class="chat-message-time"
+                              th:text="${#strings.substring(msg.timestamp.toString(), 11, 16)}">Time</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <button class="chat-icon-btn chat-attach-btn" aria-label="Attach file">
+                    <i class="bi bi-paperclip"></i>
+                </button>
+                <div class="chat-input-wrapper">
+                    <input type="text" class="form-control" id="chatInput" placeholder="Type a message...">
+                    <button class="chat-icon-btn chat-emoji-btn" aria-label="Add emoji">
+                        <i class="bi bi-emoji-smile"></i>
+                    </button>
+                </div>
+                <button class="btn btn-primary chat-send-btn" id="chatSendBtn" aria-label="Send message">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- No conversation selected (mobile default) -->
+        <div class="chat-empty" id="chatEmpty">
+            <div class="chat-empty-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <h3>Select a conversation</h3>
+            <p>Choose a conversation from the list to start chatting</p>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

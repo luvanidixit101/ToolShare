@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar" class="navbar" id="mainNavbar">
+    <div class="navbar-container">
+        <a th:href="@{/}" class="navbar-logo">
+            <i class="bi bi-tools"></i>
+            <span>ToolShare</span>
+        </a>
+
+        <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="navbar-menu" id="navbarMenu">
+            <a th:href="@{/}" class="navbar-link">Home</a>
+            <a th:href="@{/tools}" class="navbar-link">Browse Tools</a>
+            <a th:href="@{/tools/my-tools}" class="navbar-link">My Tools</a>
+            <a th:href="@{/bookings}" class="navbar-link">Bookings</a>
+            <a th:href="@{/chat}" class="navbar-link">Chat</a>
+        </div>
+
+        <div class="navbar-actions">
+            <a th:href="@{/tools}" class="navbar-icon-btn" aria-label="Search" title="Search">
+                <i class="bi bi-search"></i>
+            </a>
+            <button class="navbar-icon-btn" aria-label="Notifications" title="Notifications">
+                <i class="bi bi-bell"></i>
+                <span class="badge-dot">3</span>
+            </button>
+
+            <div class="navbar-dropdown" th:if="${currentUser != null and currentUser.loggedIn}">
+                <button class="navbar-profile" id="profileDropdownBtn" aria-label="Profile menu">
+                    <span class="avatar avatar-sm" th:text="${currentUser.firstName.substring(0,1) + currentUser.lastName.substring(0,1)}">AM</span>
+                    <span class="navbar-profile-name" th:text="${currentUser.firstName}">Alex</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="profileDropdown">
+                    <a th:href="@{/profile}" class="dropdown-item">
+                        <i class="bi bi-person"></i> My Profile
+                    </a>
+                    <a th:href="@{/tools/my-tools}" class="dropdown-item">
+                        <i class="bi bi-grid"></i> My Tools
+                    </a>
+                    <a th:href="@{/bookings}" class="dropdown-item">
+                        <i class="bi bi-calendar-check"></i> My Bookings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a th:href="@{/auth/login}" class="dropdown-item text-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <div class="navbar-auth" th:unless="${currentUser != null and currentUser.loggedIn}">
+                <a th:href="@{/auth/login}" class="btn btn-outline-primary btn-sm">Login</a>
+                <a th:href="@{/auth/register}" class="btn btn-primary btn-sm">Register</a>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
