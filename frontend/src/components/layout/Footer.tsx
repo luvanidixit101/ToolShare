@@ -57,8 +57,8 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sm text-gray-400">© 2024 ToolShare. All rights reserved.</p>
-          <p className="text-sm text-gray-400">Built with React, Vite & Tailwind CSS</p>
+          <p className="text-sm text-gray-400">© 2026 ToolShare. All rights reserved.</p>
+        {/* <p className="text-sm text-gray-400">Built with React, Vite & Tailwind CSS</p>  */}
         </div>
       </div>
     </footer>

@@ -29,6 +29,10 @@ spring:
           uri: ${CHAT_SERVICE_URL:http://localhost:8085}
           predicates:
             - Path=/api/chat/**
+        - id: ai-service
+          uri: ${AI_SERVICE_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/ai/**
       globalcors:
         corsConfigurations:
           '[/**]':
