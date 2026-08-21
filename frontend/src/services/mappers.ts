@@ -4,6 +4,7 @@ import type {
   Booking,
   Review,
   User,
+  Payment,
   Conversation,
   ChatMessage,
   PaginatedResult,
@@ -162,6 +163,21 @@ export function mapUserProfile(raw: Record<string, unknown>): User {
     rating: toNumber(raw.rating),
     reviewCount: toNumber(raw.reviewCount),
     memberSince: toDateString(raw.memberSince),
+  };
+}
+
+export function mapPayment(raw: Record<string, unknown>): Payment {
+  return {
+    id: toString(raw.id),
+    bookingId: toString(raw.bookingId),
+    payerId: toString(raw.payerId),
+    ownerId: toString(raw.ownerId),
+    amount: toNumber(raw.amount),
+    currency: toString(raw.currency, 'INR'),
+    status: (raw.status as Payment['status']) ?? 'PENDING',
+    transactionRef: raw.transactionRef ? toString(raw.transactionRef) : undefined,
+    createdAt: toDateString(raw.createdAt),
+    updatedAt: toDateString(raw.updatedAt),
   };
 }
 

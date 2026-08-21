@@ -12,6 +12,7 @@ import StarRating from '@/components/common/StarRating';
 import { FullPageSpinner } from '@/components/common/LoadingSpinner';
 import { ErrorState, EmptyState } from '@/components/common/EmptyState';
 import Modal from '@/components/common/Modal';
+import CheckoutModal from '@/components/checkout/CheckoutModal';
 import { toast } from '@/components/common/Toast';
 import { useAuth } from '@/context/AuthContext';
 
@@ -218,18 +219,24 @@ export default function ToolDetails() {
               </div>
               <div className="mt-4 space-y-2">
                 <button
-                  onClick={() => setBookingOpen(true)}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      navigate('/auth/login', { state: { from: `/tools/${id}` } });
+                      return;
+                    }
+                    setBookingOpen(true);
+                  }}
                   disabled={!tool.available}
-                  className="btn-primary w-full py-3"
+                  className="btn-primary w-full py-3 shadow-md bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800"
                 >
-                  <Calendar size={18} /> {tool.available ? 'Request to Book' : 'Not Available'}
+                  <Calendar size={18} /> {tool.available ? 'Rent Now / Proceed to Book' : 'Not Available'}
                 </button>
                 <Link to="/chat" className="btn-secondary w-full py-3">
                   <MessageSquare size={18} /> Contact Owner
                 </Link>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm text-gray-500">
-                <div className="flex items-center gap-2"><CheckCircle2 size={15} className="text-green-500" /> Free cancellation up to 24h before</div>
+                <div className="flex items-center gap-2"><CheckCircle2 size={15} className="text-green-500" /> Instant booking & payment protection</div>
                 <div className="flex items-center gap-2"><Shield size={15} className="text-green-500" /> Damage protection included</div>
                 <div className="flex items-center gap-2"><UserIcon size={15} className="text-green-500" /> Verified owner</div>
               </div>
@@ -255,47 +262,16 @@ export default function ToolDetails() {
         </div>
       </div>
 
-      {/* Booking modal */}
-      <Modal
-        open={bookingOpen}
-        onClose={() => setBookingOpen(false)}
-        title="Request to Book"
-        footer={
-          <>
-            <button onClick={() => setBookingOpen(false)} className="btn-secondary">Cancel</button>
-            <button onClick={handleBooking} disabled={bookingLoading} className="btn-primary">
-              {bookingLoading ? 'Sending...' : 'Send Request'}
-            </button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="label">Pick-up date</label>
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="label">Return date</label>
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="input" />
-          </div>
-          {startDate && endDate && (
-            <div className="rounded-lg bg-gray-50 p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{formatPrice(tool.pricePerDay)} x {daysBetween(startDate, endDate)} day{daysBetween(startDate, endDate) !== 1 ? 's' : ''}</span>
-                <span className="font-medium">{formatPrice(totalPrice)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Security deposit</span>
-                <span className="font-medium">{formatPrice(tool.securityDeposit)}</span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-gray-200">
-                <span className="font-semibold">Total</span>
-                <span className="font-bold text-primary-600">{formatPrice(totalPrice + tool.securityDeposit)}</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
+      {/* Real-Website Checkout & Payment Modal */}
+      {tool && (
+        <CheckoutModal
+          open={bookingOpen}
+          onClose={() => setBookingOpen(false)}
+          tool={tool}
+          initialStartDate={startDate}
+          initialEndDate={endDate}
+        />
+      )}
     </div>
   );
 }

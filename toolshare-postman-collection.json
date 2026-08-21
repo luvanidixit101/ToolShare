@@ -1,0 +1,791 @@
+{
+  "info": {
+    "name": "ToolShare API Collection",
+    "description": "Collection for testing all ToolShare backend APIs in Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth API",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Test@1234\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate JWT",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "validate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tool API",
+      "item": [
+        {
+          "name": "List Tools",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools?keyword=drill&category=Power Tools&availableOnly=true&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"],
+              "query": [
+                { "key": "keyword", "value": "drill" },
+                { "key": "category", "value": "Power Tools" },
+                { "key": "availableOnly", "value": "true" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Tools",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/search?search=hammer&location=Ahmedabad&minRating=4.0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "search"],
+              "query": [
+                { "key": "search", "value": "hammer" },
+                { "key": "location", "value": "Ahmedabad" },
+                { "key": "minRating", "value": "4.0" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tool Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Tools",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/my-tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "my-tools"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tool By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tool",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cordless Drill\",\n  \"description\": \"18V drill with battery and charger\",\n  \"category\": \"Power Tools\",\n  \"condition\": \"GOOD\",\n  \"location\": \"Ahmedabad\",\n  \"pricePerDay\": 550,\n  \"securityDeposit\": 2000,\n  \"images\": [\n    \"https://images.unsplash.com/...\"\n  ],\n  \"availability\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tool",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cordless Drill Pro\",\n  \"description\": \"Updated drill with new battery\",\n  \"category\": \"Power Tools\",\n  \"condition\": \"EXCELLENT\",\n  \"location\": \"Ahmedabad\",\n  \"pricePerDay\": 600,\n  \"securityDeposit\": 2500,\n  \"images\": [\n    \"https://images.unsplash.com/...\"\n  ],\n  \"availability\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch Tool",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"available\": true,\n  \"pricePerDay\": 650\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Tool Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tool Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}", "reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tool",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User API",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Test User\",\n  \"bio\": \"DIY enthusiast and weekend fixer\",\n  \"phone\": \"+919876543210\",\n  \"city\": \"Ahmedabad\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"Surat\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Test@1234\",\n  \"newPassword\": \"NewPass@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", "password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/preferences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", "preferences"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notifications\": \"email\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/preferences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", "preferences"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete My Profile",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Booking API",
+      "item": [
+        {
+          "name": "List Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/my-bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "my-bookings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Owner Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/owner",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "owner"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"{{toolId}}\",\n  \"startDate\": \"2026-08-25\",\n  \"endDate\": \"2026-08-28\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "approve"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "reject"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "cancel"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "complete"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status Compatibility",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chat API",
+      "item": [
+        {
+          "name": "List Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "conversations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "conversations", "{{conversationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": \"{{otherUserId}}\",\n  \"initialMessage\": \"Hi, is this tool still available?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "conversations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "conversations", "{{conversationId}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"The tool is available for this weekend.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "conversations", "{{conversationId}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message Compatibility",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": \"{{otherUserId}}\",\n  \"content\": \"Hello!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Message Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/messages/{{messageId}}/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "messages", "{{messageId}}", "read"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwtToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "toolId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "otherUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "conversationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "messageId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

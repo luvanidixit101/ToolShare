@@ -3,6 +3,7 @@
 export type ToolCondition = 'NEW' | 'LIKE_NEW' | 'GOOD' | 'FAIR';
 export type ToolStatus = 'ACTIVE' | 'INACTIVE';
 export type BookingStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+export type PaymentStatus = 'PENDING' | 'TEST_SUCCESS' | 'FAILED' | 'CANCELLED' | 'REFUNDED';
 
 export interface User {
   id: string;
@@ -72,6 +73,48 @@ export interface Booking {
   totalPrice: number;
   status: BookingStatus;
   createdAt: string;
+}
+
+export interface Payment {
+  id: string;
+  bookingId: string;
+  payerId: string;
+  ownerId: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  transactionRef?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaymentPayload {
+  bookingId: string;
+  amount: number;
+  currency: string;
+}
+
+export type PaymentMethodType = 'CARD' | 'UPI' | 'NET_BANKING' | 'WALLET' | 'CASH_ON_PICKUP';
+
+export interface CheckoutDetails {
+  startDate: string;
+  endDate: string;
+  fulfillmentType: 'PICKUP' | 'DELIVERY';
+  contactPhone: string;
+  deliveryAddress?: string;
+  notes?: string;
+  paymentMethod: PaymentMethodType;
+  // Card details
+  cardNumber?: string;
+  cardHolderName?: string;
+  cardExpiry?: string;
+  cardCvv?: string;
+  // UPI details
+  upiId?: string;
+  // Bank details
+  selectedBank?: string;
+  // Wallet details
+  selectedWallet?: string;
 }
 
 export interface Conversation {

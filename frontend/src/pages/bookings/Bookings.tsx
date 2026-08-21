@@ -139,9 +139,14 @@ export default function Bookings() {
                         </Link>
                         <p className="text-sm text-gray-500 mt-0.5">Booking ID: {booking.id}</p>
                       </div>
-                      <span className={classNames('badge px-3 py-1 shrink-0', config.color)}>
-                        {config.label}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="badge bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 text-[11px] font-semibold flex items-center gap-1">
+                          ✓ Payment Verified
+                        </span>
+                        <span className={classNames('badge px-3 py-1', config.color)}>
+                          {config.label}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-sm">
@@ -167,6 +172,12 @@ export default function Bookings() {
                     <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
                       <Link to={`/tools/${booking.toolId}`} className="btn-secondary text-xs px-3 py-2">
                         <Eye size={14} /> View
+                      </Link>
+                      <Link
+                        to={`/payments/success?bookingId=${booking.id}&amount=${encodeURIComponent(formatPrice(booking.totalPrice))}&toolName=${encodeURIComponent(booking.toolName)}`}
+                        className="btn-secondary text-xs px-3 py-2 text-primary-700 bg-primary-50 hover:bg-primary-100"
+                      >
+                        Receipt
                       </Link>
                       <Link to="/chat" className="btn-secondary text-xs px-3 py-2">
                         <MessageSquare size={14} /> Contact Owner

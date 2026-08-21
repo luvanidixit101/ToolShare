@@ -10,29 +10,40 @@ spring:
         - PreserveHostHeader
       routes:
         - id: auth-service
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          uri: ${AUTH_SERVICE_URL:lb://AUTH-SERVICE}
           predicates:
             - Path=/api/auth/**
         - id: user-service
-          uri: ${USER_SERVICE_URL:http://localhost:8082}
+          uri: ${USER_SERVICE_URL:lb://USER-SERVICE}
           predicates:
             - Path=/api/users/**,/api/profile/**
         - id: tool-service
-          uri: ${TOOL_SERVICE_URL:http://localhost:8083}
+          uri: ${TOOL_SERVICE_URL:lb://TOOL-SERVICE}
           predicates:
             - Path=/api/tools/**
         - id: booking-service
-          uri: ${BOOKING_SERVICE_URL:http://localhost:8084}
+          uri: ${BOOKING_SERVICE_URL:lb://BOOKING-SERVICE}
           predicates:
             - Path=/api/bookings/**
         - id: chat-service
-          uri: ${CHAT_SERVICE_URL:http://localhost:8085}
+          uri: ${CHAT_SERVICE_URL:lb://CHAT-SERVICE}
           predicates:
             - Path=/api/chat/**
+        - id: payment-service
+          uri: ${PAYMENT_SERVICE_URL:lb://PAYMENT-SERVICE}
+          predicates:
+            - Path=/api/payments/**
         - id: ai-service
-          uri: ${AI_SERVICE_URL:http://localhost:8086}
+          uri: ${AI_SERVICE_URL:lb://AI-SERVICE}
           predicates:
             - Path=/api/ai/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
       globalcors:
         corsConfigurations:
           '[/**]':

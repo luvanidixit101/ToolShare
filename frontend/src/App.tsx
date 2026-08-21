@@ -20,6 +20,7 @@ import EditTool from '@/pages/tools/EditTool';
 import MyTools from '@/pages/tools/MyTools';
 
 import Bookings from '@/pages/bookings/Bookings';
+import PaymentSuccess from '@/pages/payments/PaymentSuccess';
 
 import Profile from '@/pages/profile/Profile';
 
@@ -138,6 +139,11 @@ function App() {
                   <Chat />
                 </ProtectedRoute>
               }
+            />
+
+            <Route
+              path="/payments/success"
+              element={<PaymentSuccess />}
             />
           </Route>
         </Routes>

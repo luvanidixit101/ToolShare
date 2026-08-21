@@ -8,7 +8,7 @@ interface ModalProps {
   title?: string;
   children: ReactNode;
   footer?: ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export default function Modal({ open, onClose, title, children, footer, size = 'md' }: ModalProps) {
@@ -25,7 +25,7 @@ export default function Modal({ open, onClose, title, children, footer, size = '
 
   if (!open) return null;
 
-  const sizeClass = size === 'sm' ? 'max-w-sm' : size === 'lg' ? 'max-w-2xl' : 'max-w-md';
+  const sizeClass = size === 'sm' ? 'max-w-sm' : size === 'lg' ? 'max-w-2xl' : size === 'xl' ? 'max-w-4xl' : 'max-w-md';
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
