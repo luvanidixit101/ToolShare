@@ -17,6 +17,7 @@ export interface User {
   rating: number;
   reviewCount: number;
   memberSince: string;
+  role?: 'USER' | 'ADMIN';
 }
 
 export interface AuthUser {
@@ -25,6 +26,7 @@ export interface AuthUser {
   lastName: string;
   email: string;
   token: string;
+  role?: 'USER' | 'ADMIN';
 }
 
 export interface Tool {
@@ -42,6 +44,7 @@ export interface Tool {
   images: string[];
   ownerId: string;
   ownerName: string;
+  ownerPhone?: string;
   ownerRating: number;
   rating: number;
   reviewCount: number;
@@ -66,6 +69,7 @@ export interface Booking {
   toolImage?: string;
   ownerId: string;
   ownerName: string;
+  ownerPhone?: string;
   renterId: string;
   renterName: string;
   startDate: string;
@@ -94,7 +98,20 @@ export interface CreatePaymentPayload {
   currency: string;
 }
 
-export type PaymentMethodType = 'CARD' | 'UPI' | 'NET_BANKING' | 'WALLET' | 'CASH_ON_PICKUP';
+export type PaymentMethodType = 'CARD' | 'UPI' | 'NET_BANKING' | 'WALLET' | 'CASH_ON_PICKUP' | 'RAZORPAY';
+
+export interface ToolFormState {
+  name: string;
+  category: string;
+  description: string;
+  condition: ToolCondition;
+  pricePerDay: number;
+  securityDeposit: number;
+  location: string;
+  available: boolean;
+  specifications: { key: string; value: string }[];
+  images: string[];
+}
 
 export interface CheckoutDetails {
   startDate: string;

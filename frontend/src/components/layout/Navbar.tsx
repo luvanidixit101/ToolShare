@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Wrench, Menu, X, Search, Bell, User, LogOut, Home, List, Bookmark, MessageSquare,
+  Wrench, Menu, X, Search, Bell, User, LogOut, Home, List, Bookmark, ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { classNames } from '@/utils';
@@ -24,7 +24,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      mockGetNotifications().then(setNotifications);
+      mockGetNotifications().then((list) => setNotifications(list.filter((n) => n.type !== 'message')));
     }
   }, [isAuthenticated]);
 
@@ -58,7 +58,6 @@ export default function Navbar() {
     { to: '/tools', label: 'Browse Tools', icon: List },
     { to: '/tools/my-tools', label: 'My Tools', icon: Bookmark },
     { to: '/bookings', label: 'Bookings', icon: Bookmark },
-    { to: '/chat', label: 'Chat', icon: MessageSquare },
   ];
 
   return (
@@ -122,19 +121,47 @@ export default function Navbar() {
                     )}
                   </button>
                   {notifOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 animate-slide-up overflow-hidden">
-                      <div className="px-4 py-3 border-b border-gray-200">
-                        <h3 className="font-semibold text-gray-900">Notifications</h3>
+                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-gray-200 animate-slide-up overflow-hidden">
+                      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                        <h3 className="font-semibold text-gray-900 text-sm">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+                            }}
+                            className="text-xs text-primary-600 font-semibold hover:underline"
+                          >
+                            Mark all read
+                          </button>
+                        )}
                       </div>
-                      <div className="max-h-80 overflow-y-auto">
+                      <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
                         {notifications.length === 0 ? (
                           <p className="px-4 py-8 text-center text-sm text-gray-500">No notifications</p>
                         ) : (
                           notifications.map((n) => (
-                            <div key={n.id} className={classNames('px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors', !n.read && 'bg-primary-50/50')}>
-                              <p className="text-sm font-medium text-gray-900">{n.title}</p>
-                              <p className="text-xs text-gray-500 mt-0.5">{n.body}</p>
-                            </div>
+                            <button
+                              key={n.id}
+                              type="button"
+                              onClick={() => {
+                                setNotifications((prev) => prev.map((item) => (item.id === n.id ? { ...item, read: true } : item)));
+                                setNotifOpen(false);
+                                if (n.type === 'booking') navigate('/bookings');
+                                else if (n.type === 'message') navigate('/chat');
+                                else if (n.type === 'review') navigate('/tools/my-tools');
+                              }}
+                              className={classNames('w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-start justify-between gap-2', !n.read && 'bg-primary-50/60')}
+                            >
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
+                                  {n.title}
+                                  {!n.read && <span className="w-2 h-2 rounded-full bg-accent-500 shrink-0" />}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-0.5 leading-snug">{n.body}</p>
+                              </div>
+                              <span className="text-[10px] text-gray-400 shrink-0">Click to view</span>
+                            </button>
                           ))
                         )}
                       </div>
@@ -162,6 +189,11 @@ export default function Navbar() {
                       <Link to="/profile" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                         <User size={16} /> My Profile
                       </Link>
+                      {user?.role === 'ADMIN' && (
+                        <Link to="/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm text-purple-700 font-semibold bg-purple-50/50 hover:bg-purple-100/70 transition-colors">
+                          <ShieldCheck size={16} className="text-purple-600" /> Admin Control Panel
+                        </Link>
+                      )}
                       <Link to="/tools/my-tools" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                         <Bookmark size={16} /> My Tools
                       </Link>

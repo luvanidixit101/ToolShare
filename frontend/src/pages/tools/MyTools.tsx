@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Wrench, Eye, Pencil, Trash2, Power, Plus, TrendingUp, Calendar, IndianRupee, Bookmark,
+  Wrench, Eye, Pencil, Trash2, Power, Plus, IndianRupee, Bookmark,
 } from 'lucide-react';
 import { getMyTools, deleteTool, updateTool } from '@/services/toolService';
 import type { Tool } from '@/types';
-import { formatPrice, classNames } from '@/utils';
+import { formatPrice, classNames, getToolImage } from '@/utils';
 import { FullPageSpinner } from '@/components/common/LoadingSpinner';
 import { EmptyState, ErrorState } from '@/components/common/EmptyState';
 import Modal from '@/components/common/Modal';
@@ -116,7 +116,12 @@ export default function MyTools() {
             <div key={tool.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-gray-100 last:border-0 items-center hover:bg-gray-50/50 transition-colors">
               {/* Tool info */}
               <div className="col-span-12 md:col-span-4 flex items-center gap-3">
-                <img src={tool.images[0]} alt={tool.name} className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                <img
+                  src={getToolImage(tool.images, tool.category)}
+                  alt={tool.name}
+                  className="w-14 h-14 rounded-lg object-cover shrink-0"
+                  onError={(e) => { e.currentTarget.src = getToolImage([], tool.category); }}
+                />
                 <div className="min-w-0">
                   <p className="font-medium text-gray-900 truncate">{tool.name}</p>
                   <p className="text-sm text-gray-500">{tool.category}</p>

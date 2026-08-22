@@ -25,10 +25,6 @@ spring:
           uri: ${BOOKING_SERVICE_URL:lb://BOOKING-SERVICE}
           predicates:
             - Path=/api/bookings/**
-        - id: chat-service
-          uri: ${CHAT_SERVICE_URL:lb://CHAT-SERVICE}
-          predicates:
-            - Path=/api/chat/**
         - id: payment-service
           uri: ${PAYMENT_SERVICE_URL:lb://PAYMENT-SERVICE}
           predicates:

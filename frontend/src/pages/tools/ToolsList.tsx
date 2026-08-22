@@ -8,7 +8,6 @@ import FilterPanel from '@/components/tools/FilterPanel';
 import Pagination from '@/components/common/Pagination';
 import { ToolCardSkeleton } from '@/components/common/LoadingSpinner';
 import { EmptyState, ErrorState } from '@/components/common/EmptyState';
-import { classNames } from '@/utils';
 
 export default function ToolsList() {
   const [searchParams, setSearchParams] = useSearchParams();

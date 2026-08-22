@@ -17,7 +17,6 @@
         <module>user-service</module>
         <module>tool-service</module>
         <module>booking-service</module>
-        <module>chat-service</module>
         <module>payment-service</module>
         <module>ai-service</module>
     </modules>

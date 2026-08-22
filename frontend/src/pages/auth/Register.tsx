@@ -57,8 +57,9 @@ export default function Register() {
       });
       toast('success', 'Account created! Welcome to ToolShare.');
       navigate('/', { replace: true });
-    } catch (err: any) {
-      setError(err?.message || 'Registration failed. Please try again.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setError(e?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2 } from 'lucide-react';
-import ToolForm, { type ToolFormState, toolToFormState, formStateToToolPayload } from '@/components/tools/ToolForm';
+import ToolForm from '@/components/tools/ToolForm';
 import { getToolById, updateTool, deleteTool } from '@/services/toolService';
-import type { Tool } from '@/types';
+import type { Tool, ToolFormState } from '@/types';
+import { toolToFormState, formStateToToolPayload } from '@/utils';
 import { FullPageSpinner } from '@/components/common/LoadingSpinner';
 import { ErrorState } from '@/components/common/EmptyState';
 import Modal from '@/components/common/Modal';
@@ -34,8 +35,9 @@ export default function EditTool() {
       await updateTool(id!, formStateToToolPayload(form));
       toast('success', 'Tool updated successfully!');
       navigate('/tools/my-tools');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to update tool.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to update tool.');
     } finally {
       setSubmitting(false);
     }
@@ -47,8 +49,9 @@ export default function EditTool() {
       await deleteTool(id!);
       toast('success', 'Tool deleted.');
       navigate('/tools/my-tools');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to delete tool.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to delete tool.');
     } finally {
       setDeleting(false);
     }

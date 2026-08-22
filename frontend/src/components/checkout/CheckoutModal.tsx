@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Shield, Calendar, MapPin, CreditCard, QrCode, Building2, Wallet, Banknote,
-  Lock, CheckCircle2, AlertCircle, ArrowRight, Check, Info, Truck, UserCheck, Sparkles, Loader2
+  Shield, MapPin, CreditCard, QrCode, Building2, Wallet, Banknote,
+  Lock, CheckCircle2, ArrowRight, Info, Truck, UserCheck, Sparkles
 } from 'lucide-react';
 import Modal from '@/components/common/Modal';
 import { createBooking } from '@/services/bookingService';
 import { createPayment, confirmMockPayment } from '@/services/paymentService';
 import type { Tool, PaymentMethodType } from '@/types';
-import { formatPrice } from '@/utils';
+import { formatPrice, getToolImage } from '@/utils';
 import { toast } from '@/components/common/Toast';
+import { useAuth } from '@/context/AuthContext';
 
 interface CheckoutModalProps {
   open: boolean;
@@ -27,6 +28,9 @@ export default function CheckoutModal({
   initialEndDate = '',
 }: CheckoutModalProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const isOwner = !!user && !!tool && user.id === tool.ownerId;
 
   // Step state: 1 = Dates & Delivery, 2 = Payment Method & Details, 3 = Processing
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -92,6 +96,10 @@ export default function CheckoutModal({
   };
 
   const handleNextToPayment = () => {
+    if (isOwner) {
+      toast('error', 'You cannot book your own tool.');
+      return;
+    }
     if (!startDate || !endDate) {
       toast('error', 'Please select both pick-up and return dates.');
       return;
@@ -108,6 +116,10 @@ export default function CheckoutModal({
   };
 
   const validatePayment = () => {
+    if (isOwner) {
+      toast('error', 'You cannot book your own tool.');
+      return false;
+    }
     if (paymentMethod === 'CARD') {
       const cleanCard = cardNumber.replace(/\s/g, '');
       if (cleanCard.length < 15) {
@@ -190,10 +202,11 @@ export default function CheckoutModal({
         paymentMethod,
       });
       navigate(`/payments/success?${params.toString()}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as { message?: string };
       setProcessing(false);
       setStep(2);
-      toast('error', err?.message || 'Failed to complete rental booking.');
+      toast('error', e?.message || 'Failed to complete rental booking.');
     }
   };
 
@@ -235,7 +248,12 @@ export default function CheckoutModal({
             <div className="lg:col-span-3 space-y-5">
               {/* Tool Summary banner */}
               <div className="flex gap-4 p-3.5 bg-primary-50/50 rounded-xl border border-primary-100/80 items-center">
-                <img src={tool.images[0]} alt={tool.name} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                <img
+                  src={getToolImage(tool.images, tool.category)}
+                  alt={tool.name}
+                  className="w-16 h-16 rounded-lg object-cover shrink-0"
+                  onError={(e) => { e.currentTarget.src = getToolImage([], tool.category); }}
+                />
                 <div>
                   <h4 className="font-semibold text-gray-900">{tool.name}</h4>
                   <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
@@ -384,11 +402,58 @@ export default function CheckoutModal({
           <div className="grid lg:grid-cols-5 gap-6">
             <div className="lg:col-span-3 space-y-5">
               {/* Test mode banner */}
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 text-xs text-amber-800">
-                <Info size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold">Mock Payment Sandbox Active</p>
-                  <p className="text-amber-700">This is a simulated test payment checkout. You can use sample inputs to test the real website rental booking flow.</p>
+              <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 shadow-sm">
+                <Info size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <p className="font-bold text-amber-950 flex items-center gap-1.5">
+                      Mock Payment Sandbox Active
+                    </p>
+                    <span className="text-[10px] bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Sandbox Mode
+                    </span>
+                  </div>
+                  <p className="text-amber-800">
+                    This is a simulated test payment checkout. You can use sample inputs to test the real website rental booking flow.
+                  </p>
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <span className="text-[11px] font-semibold text-amber-900">Quick Fill Sample Inputs:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod('CARD');
+                        setCardNumber('4532 8910 2345 6789');
+                        setCardHolder('Alex Morgan');
+                        setExpiry('12/28');
+                        setCvv('123');
+                        toast('info', 'Sample Card details auto-filled!');
+                      }}
+                      className="px-2.5 py-1 bg-white hover:bg-amber-100/80 text-amber-900 font-medium rounded-lg text-xs transition-colors flex items-center gap-1 border border-amber-300 shadow-xs"
+                    >
+                      <Sparkles size={12} className="text-amber-600" /> Test Card
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod('UPI');
+                        setUpiId('alex.morgan@okicici');
+                        toast('info', 'Sample UPI ID auto-filled!');
+                      }}
+                      className="px-2.5 py-1 bg-white hover:bg-amber-100/80 text-amber-900 font-medium rounded-lg text-xs transition-colors flex items-center gap-1 border border-amber-300 shadow-xs"
+                    >
+                      <Sparkles size={12} className="text-amber-600" /> Test UPI
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod('RAZORPAY');
+                        toast('info', 'Razorpay Test Sandbox selected!');
+                      }}
+                      className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-xs transition-colors flex items-center gap-1 border border-blue-700 shadow-xs"
+                    >
+                      <Sparkles size={12} className="text-blue-200" /> Test Razorpay
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -396,6 +461,14 @@ export default function CheckoutModal({
               <div>
                 <label className="label text-xs">Select Payment Method</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('RAZORPAY')}
+                    className={`p-3 border rounded-xl flex items-center gap-2 text-xs font-semibold transition-all ${paymentMethod === 'RAZORPAY' ? 'border-blue-600 bg-blue-50/70 text-blue-900 ring-2 ring-blue-500/20 shadow-sm' : 'border-gray-200 hover:border-gray-300 text-gray-700'}`}
+                  >
+                    <span className="w-4 h-4 rounded bg-blue-600 text-white text-[10px] font-black flex items-center justify-center">R</span> Razorpay Sandbox
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('CARD')}
@@ -437,6 +510,73 @@ export default function CheckoutModal({
                   </button>
                 </div>
               </div>
+
+              {/* RAZORPAY MOCK FORM */}
+              {paymentMethod === 'RAZORPAY' && (
+                <div className="bg-slate-900 text-white rounded-xl p-5 space-y-4 shadow-xl border border-blue-500/30">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-blue-600 text-white text-xs font-black flex items-center justify-center shadow">
+                        R
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold tracking-wider text-blue-400 uppercase">Razorpay Test Gateway</span>
+                        <p className="text-[10px] text-slate-400">Merchant: ToolShare Online Rentals</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2.5 py-0.5 rounded-full">
+                      SANDBOX ACTIVE
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-slate-800/80 rounded-lg border border-slate-700/80 text-xs space-y-1.5 font-mono">
+                    <div className="flex justify-between text-slate-400">
+                      <span>Key ID</span>
+                      <span className="text-slate-200">rzp_test_99214AK20</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>Order ID</span>
+                      <span className="text-slate-200">order_rzp_test_{tool.id.slice(0, 6)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400 pt-1 border-t border-slate-700">
+                      <span className="text-slate-300">Amount Payable</span>
+                      <span className="font-bold text-green-400 text-sm">{formatPrice(grandTotal)}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-semibold uppercase text-slate-300">Razorpay Test Method Options</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => toast('info', 'Razorpay Test Card selected (4111 1111 1111 1111)')}
+                        className="p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-center text-xs text-slate-200 transition-colors"
+                      >
+                        <CreditCard size={14} className="mx-auto mb-1 text-blue-400" /> Test Card
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toast('info', 'Razorpay NetBanking selected (HDFC / ICICI)')}
+                        className="p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-center text-xs text-slate-200 transition-colors"
+                      >
+                        <Building2 size={14} className="mx-auto mb-1 text-blue-400" /> NetBanking
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toast('info', 'Razorpay UPI selected (success@razorpay)')}
+                        className="p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-center text-xs text-slate-200 transition-colors"
+                      >
+                        <QrCode size={14} className="mx-auto mb-1 text-blue-400" /> Razorpay UPI
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
+                    <Shield size={13} className="text-blue-400" />
+                    <span>256-Bit Razorpay Simulated Standard Checkout</span>
+                  </div>
+                </div>
+              )}
 
               {/* CARD FORM */}
               {paymentMethod === 'CARD' && (

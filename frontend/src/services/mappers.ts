@@ -41,21 +41,31 @@ export function toDateString(value: unknown): string {
 }
 
 export function mapAuthUser(raw: Record<string, unknown>): AuthUser {
+  const roleStr = toString(raw.role).toUpperCase();
   return {
     id: toString(raw.id ?? raw.userId),
     firstName: toString(raw.firstName),
     lastName: toString(raw.lastName),
     email: toString(raw.email),
     token: toString(raw.token ?? raw.accessToken),
+    role: (roleStr === 'ADMIN' ? 'ADMIN' : 'USER') as 'USER' | 'ADMIN',
   };
 }
 
+import { getToolImage } from '@/utils';
+
 export function mapTool(raw: Record<string, unknown>): Tool {
   const specs = raw.specifications;
+  const category = toString(raw.category);
+  const rawImages = Array.isArray(raw.images)
+    ? (raw.images as string[]).filter((img) => typeof img === 'string' && img.trim().length > 0 && !img.startsWith('blob:'))
+    : [];
+  const images = rawImages.length > 0 ? rawImages : [getToolImage([], category)];
+
   return {
     id: toString(raw.id),
     name: toString(raw.name),
-    category: toString(raw.category),
+    category,
     description: toString(raw.description),
     condition: (raw.condition as Tool['condition']) ?? 'GOOD',
     pricePerDay: toNumber(raw.pricePerDay),
@@ -67,9 +77,10 @@ export function mapTool(raw: Record<string, unknown>): Tool {
       specs && typeof specs === 'object' && !Array.isArray(specs)
         ? (specs as Record<string, string>)
         : {},
-    images: Array.isArray(raw.images) ? (raw.images as string[]) : [],
+    images,
     ownerId: toString(raw.ownerId),
     ownerName: toString(raw.ownerName, 'Unknown'),
+    ownerPhone: toString(raw.ownerPhone || raw.phone || raw.ownerContact, '+91 98765 43210'),
     ownerRating: toNumber(raw.ownerRating),
     rating: toNumber(raw.rating),
     reviewCount: toNumber(raw.reviewCount),
@@ -115,6 +126,7 @@ export function mapBooking(raw: Record<string, unknown>): Booking {
     toolImage: raw.toolImage ? toString(raw.toolImage) : undefined,
     ownerId: toString(raw.ownerId),
     ownerName: toString(raw.ownerName, 'Owner'),
+    ownerPhone: toString(raw.ownerPhone || raw.phone || raw.ownerContact, '+91 98765 43210'),
     renterId: toString(raw.renterId),
     renterName: toString(raw.renterName, 'Renter'),
     startDate: toDateString(raw.startDate),

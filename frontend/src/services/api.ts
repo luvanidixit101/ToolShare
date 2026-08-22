@@ -60,10 +60,12 @@ api.interceptors.response.use(
     }
 
     if (status === 401) {
-      clearAuth();
-      // Redirect to login if not already there
-      if (!window.location.pathname.startsWith('/auth/login')) {
-        window.location.href = '/auth/login?session=expired';
+      const currentToken = getStoredToken();
+      if (currentToken && !currentToken.startsWith('mock-jwt-token-')) {
+        clearAuth();
+        if (!window.location.pathname.startsWith('/auth/login')) {
+          window.location.href = '/auth/login?session=expired';
+        }
       }
     }
 

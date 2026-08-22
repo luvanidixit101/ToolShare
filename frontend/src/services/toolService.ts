@@ -62,7 +62,8 @@ export async function updateTool(id: string, payload: Partial<Tool>): Promise<To
     await new Promise((r) => setTimeout(r, 600));
     return { ...(await mockGetToolById(id)), ...payload } as Tool;
   }
-  const { status: _status, ...body } = payload;
+  const body = { ...payload };
+  delete (body as Record<string, unknown>).status;
   const { data } = await api.put(`/tools/${id}`, body);
   return mapTool(unwrapData<Record<string, unknown>>(data));
 }

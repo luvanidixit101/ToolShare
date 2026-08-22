@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, ShieldCheck, UserCheck } from 'lucide-react';
 import AuthLayout from '@/components/layout/AuthLayout';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/components/common/Toast';
@@ -17,6 +17,23 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleQuickLogin = async (targetEmail: string, targetPass: string, redirectTarget?: string) => {
+    setError('');
+    setEmail(targetEmail);
+    setPassword(targetPass);
+    setLoading(true);
+    try {
+      await login(targetEmail, targetPass);
+      toast('success', `Welcome back, ${targetEmail.includes('admin') ? 'Administrator' : 'User'}!`);
+      navigate(redirectTarget || (from !== '/auth/login' ? from : '/'), { replace: true });
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setError(e?.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -28,9 +45,11 @@ export default function Login() {
     try {
       await login(email, password);
       toast('success', 'Welcome back to ToolShare!');
-      navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err?.message || 'Login failed. Please check your credentials.');
+      const destination = email.toLowerCase().includes('admin') ? '/admin' : (from !== '/auth/login' ? from : '/');
+      navigate(destination, { replace: true });
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setError(e?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -38,7 +57,7 @@ export default function Login() {
 
   return (
     <AuthLayout title="Welcome Back" subtitle="Sign in to your ToolShare account">
-      {location.search.includes('session=expired') && (
+      {location.search.includes('session=expired') && !email && (
         <div className="mb-4 flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
           <AlertCircle size={16} /> Your session expired. Please sign in again.
         </div>
@@ -96,6 +115,29 @@ export default function Login() {
         <button type="submit" disabled={loading} className="btn-primary w-full py-3">
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
+
+        {/* Quick Fill Demo Logins */}
+        <div className="pt-4 border-t border-gray-100">
+          <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider text-center">Quick Fill Demo Accounts</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleQuickLogin('alex.morgan@example.com', 'password123', '/')}
+              className="btn bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs py-2 font-medium flex items-center justify-center gap-1.5"
+            >
+              <UserCheck size={14} className="text-gray-500" /> Regular User
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleQuickLogin('dixit@gmail.com', 'Dixit@123', '/admin')}
+              className="btn bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs py-2 font-bold flex items-center justify-center gap-1.5"
+            >
+              <ShieldCheck size={14} className="text-purple-600" /> Admin Account
+            </button>
+          </div>
+        </div>
       </form>
       <p className="text-center text-sm text-gray-500 mt-6">
         Don't have an account?{' '}

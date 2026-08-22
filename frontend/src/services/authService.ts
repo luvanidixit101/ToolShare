@@ -21,12 +21,14 @@ export interface RegisterPayload {
 export async function login(payload: LoginPayload): Promise<AuthUser> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 600));
+    const isAdmin = payload.email.toLowerCase().includes('admin') || payload.email.toLowerCase() === 'dixit@gmail.com';
     const user: AuthUser = {
-      id: mockUser.id,
-      firstName: mockUser.firstName,
-      lastName: mockUser.lastName,
-      email: payload.email || mockUser.email,
+      id: isAdmin ? 'admin-001' : mockUser.id,
+      firstName: isAdmin ? 'Dixit' : mockUser.firstName,
+      lastName: isAdmin ? 'Luvani' : mockUser.lastName,
+      email: payload.email || (isAdmin ? 'dixit@gmail.com' : mockUser.email),
       token: 'mock-jwt-token-' + Date.now(),
+      role: isAdmin ? 'ADMIN' : 'USER',
     };
     storeAuth(user);
     return user;

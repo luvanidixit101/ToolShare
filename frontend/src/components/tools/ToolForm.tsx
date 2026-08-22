@@ -1,55 +1,8 @@
 import { useState, useRef } from 'react';
-import { X, Upload, ImageIcon } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import { CATEGORIES } from '@/services/mockData';
-import type { Tool, ToolCondition } from '@/types';
+import type { ToolCondition, ToolFormState } from '@/types';
 import { classNames, conditionLabels, CURRENCY_SYMBOL } from '@/utils';
-
-export interface ToolFormState {
-  name: string;
-  category: string;
-  description: string;
-  condition: ToolCondition;
-  pricePerDay: number;
-  securityDeposit: number;
-  location: string;
-  available: boolean;
-  specifications: { key: string; value: string }[];
-  images: string[];
-}
-
-export function toolToFormState(tool: Tool): ToolFormState {
-  return {
-    name: tool.name,
-    category: tool.category,
-    description: tool.description,
-    condition: tool.condition,
-    pricePerDay: tool.pricePerDay,
-    securityDeposit: tool.securityDeposit,
-    location: tool.location,
-    available: tool.available,
-    specifications: Object.entries(tool.specifications).map(([key, value]) => ({ key, value })),
-    images: [...tool.images],
-  };
-}
-
-export function formStateToToolPayload(form: ToolFormState) {
-  const specs: Record<string, string> = {};
-  form.specifications.forEach((s) => {
-    if (s.key.trim()) specs[s.key.trim()] = s.value.trim();
-  });
-  return {
-    name: form.name,
-    category: form.category,
-    description: form.description,
-    condition: form.condition,
-    pricePerDay: Number(form.pricePerDay),
-    securityDeposit: Number(form.securityDeposit),
-    location: form.location,
-    available: form.available,
-    specifications: specs,
-    images: form.images,
-  };
-}
 
 interface ToolFormProps {
   initial: ToolFormState;
@@ -78,13 +31,52 @@ export default function ToolForm({ initial, onSubmit, onCancel, submitting, subm
   };
   const removeSpec = (i: number) => setForm((f) => ({ ...f, specifications: f.specifications.filter((_, idx) => idx !== i) }));
 
-  const handleImages = (files: FileList | null) => {
-    if (!files) return;
-    const newImages: string[] = [];
-    Array.from(files).slice(0, 5).forEach((file) => {
-      newImages.push(URL.createObjectURL(file));
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 800;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.75));
+          } else {
+            resolve(e.target?.result as string);
+          }
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
     });
-    setForm((f) => ({ ...f, images: [...f.images, ...newImages].slice(0, 5) }));
+  };
+
+  const handleImages = async (files: FileList | null) => {
+    if (!files) return;
+    const selectedFiles = Array.from(files).slice(0, 5);
+    for (const file of selectedFiles) {
+      try {
+        const compressed = await compressImage(file);
+        setForm((f) => ({ ...f, images: [...f.images, compressed].slice(0, 5) }));
+      } catch {
+        // Fallback
+      }
+    }
   };
 
   const removeImage = (i: number) => setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));

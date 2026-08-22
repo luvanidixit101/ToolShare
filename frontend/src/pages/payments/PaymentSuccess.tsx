@@ -1,6 +1,5 @@
 import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Printer, ShieldCheck, Download, ExternalLink } from 'lucide-react';
-import { toast } from '@/components/common/Toast';
+import { CheckCircle2, ArrowRight, Printer, ShieldCheck } from 'lucide-react';
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -12,6 +11,7 @@ export default function PaymentSuccess() {
 
   const formatMethodLabel = (m: string) => {
     switch (m) {
+      case 'RAZORPAY': return 'Razorpay Test Sandbox (Simulated Gateway)';
       case 'CARD': return 'Credit / Debit Card (SSL Test Gateway)';
       case 'UPI': return 'UPI / QR Payment';
       case 'NET_BANKING': return 'Net Banking Direct Transfer';

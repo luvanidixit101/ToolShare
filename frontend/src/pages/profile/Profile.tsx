@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User as UserIcon, Mail, Phone, MapPin, Star, Calendar, Lock, Bell, LogOut,
-  Trash2, Check, Edit3, Save,
+  User as UserIcon, Mail, MapPin, Calendar, Lock, Bell, LogOut,
+  Trash2, Edit3, Save,
 } from 'lucide-react';
 import { getProfile, updateProfile, changePassword, deleteAccount } from '@/services/profileService';
 import type { User } from '@/types';
@@ -59,8 +59,9 @@ export default function Profile() {
       setProfile(updated);
       setEditing(false);
       toast('success', 'Profile updated successfully!');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to update profile.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to update profile.');
     } finally {
       setSavingProfile(false);
     }
@@ -80,8 +81,9 @@ export default function Profile() {
       await changePassword({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword });
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       toast('success', 'Password changed successfully!');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to change password.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to change password.');
     } finally {
       setSavingPassword(false);
     }
@@ -99,8 +101,9 @@ export default function Profile() {
       await logout();
       toast('success', 'Account deleted.');
       navigate('/');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to delete account.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to delete account.');
     } finally {
       setDeleting(false);
     }

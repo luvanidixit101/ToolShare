@@ -24,7 +24,7 @@ import PaymentSuccess from '@/pages/payments/PaymentSuccess';
 
 import Profile from '@/pages/profile/Profile';
 
-import Chat from '@/pages/chat/Chat';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -130,13 +130,11 @@ function App() {
               }
             />
 
-            {/* User Chat */}
-
             <Route
-              path="/chat"
+              path="/admin"
               element={
-                <ProtectedRoute>
-                  <Chat />
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />

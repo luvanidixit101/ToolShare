@@ -315,7 +315,6 @@ export const mockMessages: Record<string, ChatMessage[]> = {
 
 export const mockNotifications: Notification[] = [
   { id: 'n1', type: 'booking', title: 'Booking Approved', body: 'Your booking for DeWalt Cordless Drill was approved.', read: false, createdAt: '2024-10-12T11:00:00' },
-  { id: 'n2', type: 'message', title: 'New Message', body: 'Sam Rivera sent you a message.', read: false, createdAt: '2024-10-12T10:30:00' },
   { id: 'n3', type: 'review', title: 'New Review', body: 'Someone reviewed your tool listing.', read: true, createdAt: '2024-10-09T14:00:00' },
 ];
 

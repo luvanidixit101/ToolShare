@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "ToolShare API Collection",
-    "description": "Collection for testing all ToolShare backend APIs in Postman.",
+    "description": "Collection for testing all ToolShare backend APIs in Postman with automatic token and resource ID auto-capture.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -10,10 +10,40 @@
       "item": [
         {
           "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.token) {",
+                  "        pm.collectionVariables.set('jwtToken', data.token);",
+                  "        pm.environment.set('jwtToken', data.token);",
+                  "    }",
+                  "    if (data.refreshToken) {",
+                  "        pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "        pm.environment.set('refreshToken', data.refreshToken);",
+                  "    }",
+                  "    var uid = data.userId || data.id;",
+                  "    if (uid) {",
+                  "        pm.collectionVariables.set('userId', uid);",
+                  "        pm.environment.set('userId', uid);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -21,18 +51,54 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.token) {",
+                  "        pm.collectionVariables.set('jwtToken', data.token);",
+                  "        pm.environment.set('jwtToken', data.token);",
+                  "    }",
+                  "    if (data.refreshToken) {",
+                  "        pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "        pm.environment.set('refreshToken', data.refreshToken);",
+                  "    }",
+                  "    var uid = data.userId || data.id;",
+                  "    if (uid) {",
+                  "        pm.collectionVariables.set('userId', uid);",
+                  "        pm.environment.set('userId', uid);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -40,18 +106,49 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.token) {",
+                  "        pm.collectionVariables.set('jwtToken', data.token);",
+                  "        pm.environment.set('jwtToken', data.token);",
+                  "    }",
+                  "    if (data.refreshToken) {",
+                  "        pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "        pm.environment.set('refreshToken', data.refreshToken);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -59,8 +156,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
             }
           },
           "response": []
@@ -70,7 +173,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -78,8 +184,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             }
           },
           "response": []
@@ -89,12 +201,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/auth/validate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "validate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "validate"
+              ]
             }
           },
           "response": []
@@ -104,12 +225,21 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             }
           },
           "response": []
@@ -126,14 +256,34 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tools?keyword=drill&category=Power Tools&availableOnly=true&page=0&size=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools"
+              ],
               "query": [
-                { "key": "keyword", "value": "drill" },
-                { "key": "category", "value": "Power Tools" },
-                { "key": "availableOnly", "value": "true" },
-                { "key": "page", "value": "0" },
-                { "key": "size", "value": "10" }
+                {
+                  "key": "keyword",
+                  "value": "drill"
+                },
+                {
+                  "key": "category",
+                  "value": "Power Tools"
+                },
+                {
+                  "key": "availableOnly",
+                  "value": "true"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
               ]
             }
           },
@@ -146,12 +296,27 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tools/search?search=hammer&location=Ahmedabad&minRating=4.0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "search"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "search"
+              ],
               "query": [
-                { "key": "search", "value": "hammer" },
-                { "key": "location", "value": "Ahmedabad" },
-                { "key": "minRating", "value": "4.0" }
+                {
+                  "key": "search",
+                  "value": "hammer"
+                },
+                {
+                  "key": "location",
+                  "value": "Ahmedabad"
+                },
+                {
+                  "key": "minRating",
+                  "value": "4.0"
+                }
               ]
             }
           },
@@ -164,8 +329,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tools/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "categories"
+              ]
             }
           },
           "response": []
@@ -175,12 +346,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/tools/my-tools",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "my-tools"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "my-tools"
+              ]
             }
           },
           "response": []
@@ -192,28 +372,63 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tools/{{toolId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "{{toolId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "{{toolId}}"
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Create Tool",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.id) {",
+                  "        pm.collectionVariables.set('toolId', data.id);",
+                  "        pm.environment.set('toolId', data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cordless Drill\",\n  \"description\": \"18V drill with battery and charger\",\n  \"category\": \"Power Tools\",\n  \"condition\": \"GOOD\",\n  \"location\": \"Ahmedabad\",\n  \"pricePerDay\": 550,\n  \"securityDeposit\": 2000,\n  \"images\": [\n    \"https://images.unsplash.com/...\"\n  ],\n  \"availability\": true\n}"
+              "raw": "{\n  \"name\": \"Cordless Drill\",\n  \"description\": \"18V drill with battery and charger\",\n  \"category\": \"Power Tools\",\n  \"condition\": \"GOOD\",\n  \"location\": \"Ahmedabad\",\n  \"pricePerDay\": 550,\n  \"securityDeposit\": 2000,\n  \"images\": [\n    \"https://images.unsplash.com/photo-1504148455328-c376907d081c\"\n  ],\n  \"availability\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/tools",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools"
+              ]
             }
           },
           "response": []
@@ -223,17 +438,29 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cordless Drill Pro\",\n  \"description\": \"Updated drill with new battery\",\n  \"category\": \"Power Tools\",\n  \"condition\": \"EXCELLENT\",\n  \"location\": \"Ahmedabad\",\n  \"pricePerDay\": 600,\n  \"securityDeposit\": 2500,\n  \"images\": [\n    \"https://images.unsplash.com/...\"\n  ],\n  \"availability\": true\n}"
+              "raw": "{\n  \"name\": \"Cordless Drill Pro\",\n  \"description\": \"Updated drill with new battery\",\n  \"category\": \"Power Tools\",\n  \"condition\": \"EXCELLENT\",\n  \"location\": \"Ahmedabad\",\n  \"pricePerDay\": 600,\n  \"securityDeposit\": 2500,\n  \"images\": [\n    \"https://images.unsplash.com/photo-1504148455328-c376907d081c\"\n  ],\n  \"availability\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/tools/{{toolId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "{{toolId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "{{toolId}}"
+              ]
             }
           },
           "response": []
@@ -243,8 +470,14 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -252,8 +485,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/tools/{{toolId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "{{toolId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "{{toolId}}"
+              ]
             }
           },
           "response": []
@@ -263,8 +502,14 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -272,8 +517,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/tools/{{toolId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "{{toolId}}", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "{{toolId}}",
+                "status"
+              ]
             }
           },
           "response": []
@@ -285,8 +537,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tools/{{toolId}}/reviews",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "{{toolId}}", "reviews"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "{{toolId}}",
+                "reviews"
+              ]
             }
           },
           "response": []
@@ -296,12 +555,21 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/tools/{{toolId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tools", "{{toolId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tools",
+                "{{toolId}}"
+              ]
             }
           },
           "response": []
@@ -313,15 +581,42 @@
       "item": [
         {
           "name": "Get My Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.id) {",
+                  "        pm.collectionVariables.set('userId', data.id);",
+                  "        pm.environment.set('userId', data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
             }
           },
           "response": []
@@ -333,8 +628,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
             }
           },
           "response": []
@@ -344,8 +645,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -353,8 +660,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
             }
           },
           "response": []
@@ -364,8 +677,14 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -373,8 +692,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
             }
           },
           "response": []
@@ -384,7 +709,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -392,8 +724,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/me/password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me", "password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "password"
+              ]
             }
           },
           "response": []
@@ -403,12 +742,22 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users/me/preferences",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me", "preferences"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "preferences"
+              ]
             }
           },
           "response": []
@@ -418,8 +767,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -427,8 +782,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/me/preferences",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me", "preferences"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "preferences"
+              ]
             }
           },
           "response": []
@@ -438,12 +800,44 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/users/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile Compatibility",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "profile"
+              ]
             }
           },
           "response": []
@@ -458,12 +852,20 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
             }
           },
           "response": []
@@ -473,12 +875,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "{{bookingId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}"
+              ]
             }
           },
           "response": []
@@ -488,12 +899,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/my-bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "my-bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "my-bookings"
+              ]
             }
           },
           "response": []
@@ -503,23 +923,56 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/owner",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "owner"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "owner"
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Create Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.id) {",
+                  "        pm.collectionVariables.set('bookingId', data.id);",
+                  "        pm.environment.set('bookingId', data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -527,8 +980,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
             }
           },
           "response": []
@@ -538,12 +996,22 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "{{bookingId}}", "approve"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}",
+                "approve"
+              ]
             }
           },
           "response": []
@@ -553,12 +1021,22 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "{{bookingId}}", "reject"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}",
+                "reject"
+              ]
             }
           },
           "response": []
@@ -568,12 +1046,22 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "{{bookingId}}", "cancel"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}",
+                "cancel"
+              ]
             }
           },
           "response": []
@@ -583,12 +1071,22 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/complete",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "{{bookingId}}", "complete"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}",
+                "complete"
+              ]
             }
           },
           "response": []
@@ -598,8 +1096,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -607,8 +1111,167 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "{{bookingId}}", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment API",
+      "item": [
+        {
+          "name": "Create Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.id) {",
+                  "        pm.collectionVariables.set('paymentId', data.id);",
+                  "        pm.environment.set('paymentId', data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 49.99,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"cardHolderName\": \"John Doe\",\n  \"cardNumber\": \"4111222233334444\",\n  \"cardExpiry\": \"12/28\",\n  \"cardCvv\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List My Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "{{paymentId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mock Payment Success",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/mock-success",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "{{paymentId}}",
+                "mock-success"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mock Payment Failure",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/mock-failure",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "{{paymentId}}",
+                "mock-failure"
+              ]
             }
           },
           "response": []
@@ -623,12 +1286,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/chat/conversations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "conversations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations"
+              ]
             }
           },
           "response": []
@@ -638,23 +1310,58 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "conversations", "{{conversationId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations",
+                "{{conversationId}}"
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    var cid = data.id || data.conversationId;",
+                  "    if (cid) {",
+                  "        pm.collectionVariables.set('conversationId', cid);",
+                  "        pm.environment.set('conversationId', cid);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -662,8 +1369,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/chat/conversations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "conversations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations"
+              ]
             }
           },
           "response": []
@@ -673,23 +1386,59 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}/messages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "conversations", "{{conversationId}}", "messages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations",
+                "{{conversationId}}",
+                "messages"
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Send Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    var mid = data.id || data.messageId;",
+                  "    if (mid) {",
+                  "        pm.collectionVariables.set('messageId', mid);",
+                  "        pm.environment.set('messageId', mid);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -697,8 +1446,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/chat/conversations/{{conversationId}}/messages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "conversations", "{{conversationId}}", "messages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "conversations",
+                "{{conversationId}}",
+                "messages"
+              ]
             }
           },
           "response": []
@@ -708,8 +1465,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -717,8 +1480,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/chat/messages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "messages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "messages"
+              ]
             }
           },
           "response": []
@@ -728,102 +1497,23 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/chat/messages/{{messageId}}/read",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "chat", "messages", "{{messageId}}", "read"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Payment API",
-      "item": [
-        {
-          "name": "Create Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 49.99,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"cardHolderName\": \"John Doe\",\n  \"cardNumber\": \"4111222233334444\",\n  \"cardExpiry\": \"12/28\",\n  \"cardCvv\": \"123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/create",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "create"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Payment by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/{{paymentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "{{paymentId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Payment by Booking ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/booking/{{bookingId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "booking", "{{bookingId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Mock Payment Success",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/mock-success",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "{{paymentId}}", "mock-success"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Refund Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"reason\": \"User requested cancellation\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/refund",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "{{paymentId}}", "refund"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "messages",
+                "{{messageId}}",
+                "read"
+              ]
             }
           },
           "response": []
@@ -835,32 +1525,49 @@
       "item": [
         {
           "name": "Chat with AI",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.conversationId) {",
+                  "        pm.collectionVariables.set('conversationId', res.conversationId);",
+                  "        pm.environment.set('conversationId', res.conversationId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"prompt\": \"How do I rent a lawn mower on ToolShare?\"\n}"
+              "raw": "{\n  \"message\": \"How do I rent a lawn mower on ToolShare?\",\n  \"conversationId\": \"{{conversationId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/ai/chat",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "ai", "chat"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "AI Health Check",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/ai/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "ai", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "chat"
+              ]
             }
           },
           "response": []
@@ -875,12 +1582,20 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{eurekaUrl}}/eureka/apps",
-              "host": ["{{eurekaUrl}}"],
-              "path": ["eureka", "apps"]
+              "host": [
+                "{{eurekaUrl}}"
+              ],
+              "path": [
+                "eureka",
+                "apps"
+              ]
             }
           },
           "response": []
@@ -889,10 +1604,16 @@
           "name": "Eureka Health",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{eurekaUrl}}/actuator/health",
-              "host": ["{{eurekaUrl}}"],
-              "path": ["actuator", "health"]
+              "host": [
+                "{{eurekaUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
             }
           },
           "response": []

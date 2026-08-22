@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Send, Paperclip, Search, ArrowLeft, MessageSquare } from 'lucide-react';
-import { getConversations, getMessages, sendMessage } from '@/services/chatService';
+import { getConversations, getMessages, sendMessage } from '@/services/chat';
 import type { Conversation, ChatMessage } from '@/types';
 import { timeAgo, formatDateTime, classNames } from '@/utils';
 import { FullPageSpinner } from '@/components/common/LoadingSpinner';
@@ -8,6 +9,11 @@ import { EmptyState, ErrorState } from '@/components/common/EmptyState';
 import { toast } from '@/components/common/Toast';
 
 export default function Chat() {
+  const [searchParams] = useSearchParams();
+  const paramOwnerId = searchParams.get('ownerId');
+  const paramOwnerName = searchParams.get('ownerName');
+  const paramToolName = searchParams.get('toolName');
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConv, setActiveConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -20,21 +26,50 @@ export default function Chat() {
   const [mobileChat, setMobileChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const load = () => {
+  useEffect(() => {
     setLoading(true);
     setError(null);
     getConversations()
       .then((convs) => {
-        setConversations(convs);
-        if (convs.length > 0 && !activeConv) {
-          setActiveConv(convs[0]);
-        }
-      })
-      .catch((err) => setError(err?.message || 'Failed to load conversations'))
-      .finally(() => setLoading(false));
-  };
+        let target = convs[0] || null;
+        let updatedConvs = [...convs];
 
-  useEffect(load, []);
+        if (paramOwnerId || paramOwnerName) {
+          const found = convs.find(
+            (c) =>
+              (paramOwnerId && c.participantId === paramOwnerId) ||
+              (paramOwnerName && c.participantName.toLowerCase() === paramOwnerName.toLowerCase())
+          );
+          if (found) {
+            target = found;
+          } else {
+            const newConv: Conversation = {
+              id: 'conv-' + (paramOwnerId || Date.now()),
+              participantId: paramOwnerId || 'u-owner',
+              participantName: paramOwnerName || 'Tool Owner',
+              lastMessage: paramToolName ? `Inquiring about ${paramToolName}` : 'New conversation',
+              lastMessageAt: new Date().toISOString(),
+              unreadCount: 0,
+              online: true,
+            };
+            updatedConvs = [newConv, ...convs];
+            target = newConv;
+          }
+          setMobileChat(true);
+          if (paramToolName) {
+            setInput(`Hi ${paramOwnerName || 'there'}, I am interested in renting your ${paramToolName}! Is it available?`);
+          }
+        }
+
+        setConversations(updatedConvs);
+        setActiveConv(target);
+      })
+      .catch((err: unknown) => {
+        const e = err as { message?: string };
+        setError(e?.message || 'Failed to load conversations');
+      })
+      .finally(() => setLoading(false));
+  }, [paramOwnerId, paramOwnerName, paramToolName]);
 
   useEffect(() => {
     if (!activeConv) return;
@@ -77,7 +112,7 @@ export default function Chat() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Messages</h1>
 
-      {error && <ErrorState message={error} onRetry={load} />}
+      {error && <ErrorState message={error} onRetry={() => window.location.reload()} />}
 
       {!error && conversations.length === 0 && (
         <EmptyState

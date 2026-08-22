@@ -2,16 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   MapPin, Heart, Share2, Calendar, Shield, Star, ChevronLeft, ChevronRight,
-  MessageSquare, ArrowLeft, CheckCircle2, User as UserIcon,
+  ArrowLeft, CheckCircle2, User as UserIcon, Phone,
 } from 'lucide-react';
 import { getToolById, getReviews } from '@/services/toolService';
-import { createBooking } from '@/services/bookingService';
 import type { Tool, Review } from '@/types';
-import { formatPrice, formatDate, conditionLabels, classNames } from '@/utils';
+import { formatPrice, formatDate, conditionLabels, classNames, getToolImage, SVG_FALLBACK_IMAGE } from '@/utils';
 import StarRating from '@/components/common/StarRating';
 import { FullPageSpinner } from '@/components/common/LoadingSpinner';
 import { ErrorState, EmptyState } from '@/components/common/EmptyState';
-import Modal from '@/components/common/Modal';
 import CheckoutModal from '@/components/checkout/CheckoutModal';
 import { toast } from '@/components/common/Toast';
 import { useAuth } from '@/context/AuthContext';
@@ -19,7 +17,7 @@ import { useAuth } from '@/context/AuthContext';
 export default function ToolDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [tool, setTool] = useState<Tool | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,9 +25,8 @@ export default function ToolDetails() {
   const [activeImage, setActiveImage] = useState(0);
   const [fav, setFav] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [bookingLoading, setBookingLoading] = useState(false);
+
+  const isOwner = !!user && !!tool && user.id === tool.ownerId;
 
   useEffect(() => {
     if (!id) return;
@@ -40,40 +37,12 @@ export default function ToolDetails() {
         setTool(t);
         setReviews(r);
       })
-      .catch((err) => setError(err?.message || 'Failed to load tool details'))
+      .catch((err: unknown) => {
+        const e = err as { message?: string };
+        setError(e?.message || 'Failed to load tool details');
+      })
       .finally(() => setLoading(false));
   }, [id]);
-
-  const daysBetween = (s: string, e: string) => {
-    const d = new Date(e).getTime() - new Date(s).getTime();
-    return Math.max(1, Math.ceil(d / 86400000));
-  };
-
-  const totalPrice = tool && startDate && endDate
-    ? tool.pricePerDay * daysBetween(startDate, endDate)
-    : 0;
-
-  const handleBooking = async () => {
-    if (!isAuthenticated) {
-      navigate('/auth/login', { state: { from: `/tools/${id}` } });
-      return;
-    }
-    if (!startDate || !endDate) {
-      toast('error', 'Please select booking dates.');
-      return;
-    }
-    setBookingLoading(true);
-    try {
-      await createBooking({ toolId: id!, startDate, endDate });
-      toast('success', 'Booking request sent! The owner will respond shortly.');
-      setBookingOpen(false);
-      navigate('/bookings');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to create booking.');
-    } finally {
-      setBookingLoading(false);
-    }
-  };
 
   if (loading) return <FullPageSpinner label="Loading tool details..." />;
   if (error) return <div className="max-w-3xl mx-auto py-12"><ErrorState message={error} onRetry={() => navigate(0)} /></div>;
@@ -91,7 +60,19 @@ export default function ToolDetails() {
           {/* Gallery */}
           <div className="card overflow-hidden">
             <div className="relative h-80 sm:h-96 bg-gray-100">
-              <img src={tool.images[activeImage]} alt={tool.name} className="w-full h-full object-cover" />
+              <img
+                src={getToolImage(tool.images, tool.category, activeImage)}
+                alt={tool.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const fallback = getToolImage([], tool.category);
+                  if (e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  } else {
+                    e.currentTarget.src = SVG_FALLBACK_IMAGE;
+                  }
+                }}
+              />
               {tool.images.length > 1 && (
                 <>
                   <button
@@ -128,7 +109,12 @@ export default function ToolDetails() {
                       i === activeImage ? 'border-primary-500' : 'border-transparent'
                     )}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={getToolImage(tool.images, tool.category, i)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.src = getToolImage([], tool.category); }}
+                    />
                   </button>
                 ))}
               </div>
@@ -217,6 +203,15 @@ export default function ToolDetails() {
                 <Shield size={15} className="text-gray-400" />
                 Security deposit: {formatPrice(tool.securityDeposit)}
               </div>
+              {isOwner && (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+                  <UserIcon size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-amber-900">Your Tool Listing</p>
+                    <p className="text-amber-700">You are the owner of this tool. Users cannot book their own tools.</p>
+                  </div>
+                </div>
+              )}
               <div className="mt-4 space-y-2">
                 <button
                   onClick={() => {
@@ -224,16 +219,23 @@ export default function ToolDetails() {
                       navigate('/auth/login', { state: { from: `/tools/${id}` } });
                       return;
                     }
+                    if (isOwner) {
+                      toast('error', 'You cannot book your own tool.');
+                      return;
+                    }
                     setBookingOpen(true);
                   }}
-                  disabled={!tool.available}
-                  className="btn-primary w-full py-3 shadow-md bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800"
+                  disabled={!tool.available || isOwner}
+                  className={`w-full py-3 shadow-md rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+                    isOwner
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300'
+                      : !tool.available
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800'
+                  }`}
                 >
-                  <Calendar size={18} /> {tool.available ? 'Rent Now / Proceed to Book' : 'Not Available'}
+                  <Calendar size={18} /> {isOwner ? 'You Own This Tool' : tool.available ? 'Rent Now / Proceed to Book' : 'Not Available'}
                 </button>
-                <Link to="/chat" className="btn-secondary w-full py-3">
-                  <MessageSquare size={18} /> Contact Owner
-                </Link>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm text-gray-500">
                 <div className="flex items-center gap-2"><CheckCircle2 size={15} className="text-green-500" /> Instant booking & payment protection</div>
@@ -242,18 +244,22 @@ export default function ToolDetails() {
               </div>
             </div>
 
-            {/* Owner card */}
+            {/* Tool Owner Card */}
             <div className="card p-5">
               <h3 className="text-sm font-semibold text-gray-500 mb-3">Tool Owner</h3>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
+                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-lg">
                   {tool.ownerName[0]}
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">{tool.ownerName}</p>
-                  <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <Star size={12} className="text-accent-400 fill-accent-400" />
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Star size={12} className="text-amber-500 fill-amber-500" />
                     {tool.ownerRating.toFixed(1)} rating
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs font-semibold text-gray-900 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-200 w-fit">
+                    <Phone size={14} className="text-green-600" />
+                    <span>{tool.ownerPhone || '+91 98765 43210'}</span>
                   </div>
                 </div>
               </div>
@@ -268,8 +274,6 @@ export default function ToolDetails() {
           open={bookingOpen}
           onClose={() => setBookingOpen(false)}
           tool={tool}
-          initialStartDate={startDate}
-          initialEndDate={endDate}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import { SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import { CATEGORIES } from '@/services/mockData';
 import type { ToolFilters } from '@/types';
 import { classNames, CURRENCY_SYMBOL } from '@/utils';

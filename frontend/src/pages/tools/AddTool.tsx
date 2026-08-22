@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import ToolForm, { type ToolFormState, formStateToToolPayload } from '@/components/tools/ToolForm';
+import ToolForm from '@/components/tools/ToolForm';
+import type { ToolFormState } from '@/types';
+import { formStateToToolPayload } from '@/utils';
 import { createTool } from '@/services/toolService';
 import { toast } from '@/components/common/Toast';
 
@@ -28,8 +30,9 @@ export default function AddTool() {
       await createTool(formStateToToolPayload(form));
       toast('success', 'Tool listed successfully!');
       navigate('/tools/my-tools');
-    } catch (err: any) {
-      toast('error', err?.message || 'Failed to create tool listing.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to create tool listing.');
     } finally {
       setSubmitting(false);
     }

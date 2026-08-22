@@ -21,8 +21,9 @@ export default function ForgotPassword() {
     try {
       await forgotPassword(email);
       setSent(true);
-    } catch (err: any) {
-      setError(err?.message || 'Something went wrong. Please try again.');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setError(e?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

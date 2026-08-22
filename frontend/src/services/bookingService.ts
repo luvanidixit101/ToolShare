@@ -70,4 +70,16 @@ export async function updateBookingStatus(id: string, status: BookingStatus): Pr
   return mapBooking(unwrapData<Record<string, unknown>>(data));
 }
 
-export default { getBookings, getBookingById, createBooking, cancelBooking, updateBookingStatus };
+export async function approveBooking(id: string): Promise<Booking> {
+  if (USE_MOCK) return updateBookingStatus(id, 'APPROVED');
+  const { data } = await api.patch(`/bookings/${id}/approve`);
+  return mapBooking(unwrapData<Record<string, unknown>>(data));
+}
+
+export async function rejectBooking(id: string): Promise<Booking> {
+  if (USE_MOCK) return updateBookingStatus(id, 'REJECTED');
+  const { data } = await api.patch(`/bookings/${id}/reject`);
+  return mapBooking(unwrapData<Record<string, unknown>>(data));
+}
+
+export default { getBookings, getBookingById, createBooking, cancelBooking, updateBookingStatus, approveBooking, rejectBooking };
