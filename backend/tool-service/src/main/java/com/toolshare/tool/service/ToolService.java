@@ -42,6 +42,7 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public PagedResponse<ToolResponse> search(
             String keyword,
             String search,
@@ -84,6 +85,7 @@ public class ToolService {
     }
 
     @Transactional
+    @SuppressWarnings("null")
     public ToolResponse update(UUID id, ToolRequest request, CurrentUser currentUser) {
         Tool tool = find(id);
         requireOwnerOrAdmin(tool, currentUser);
@@ -94,6 +96,7 @@ public class ToolService {
     }
 
     @Transactional
+    @SuppressWarnings("null")
     public ToolResponse patch(UUID id, ToolPatchRequest request, CurrentUser currentUser) {
         Tool tool = find(id);
         requireOwnerOrAdmin(tool, currentUser);
@@ -104,6 +107,7 @@ public class ToolService {
     }
 
     @Transactional
+    @SuppressWarnings("null")
     public void delete(UUID id, CurrentUser currentUser) {
         Tool tool = find(id);
         requireOwnerOrAdmin(tool, currentUser);
@@ -126,6 +130,7 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public List<String> categories() {
         return repository.findAll().stream()
                 .map(Tool::getCategory)
@@ -140,6 +145,7 @@ public class ToolService {
         return List.of();
     }
 
+    @SuppressWarnings("null")
     private Tool find(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Tool not found"));
