@@ -59,7 +59,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.login(new LoginRequest("alex@example.com", "bad")))
                 .isInstanceOf(ApiException.class)
-                .hasMessage("Invalid email or password");
+                .hasMessage("Invalid login ID or password");
     }
 
     @Test

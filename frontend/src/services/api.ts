@@ -85,7 +85,7 @@ export function mapErrorToMessage(
     case 400:
       return backendMessage || 'The request was invalid. Please check your input.';
     case 401:
-      return 'Your session has expired. Please log in again.';
+      return backendMessage || (window.location.pathname.startsWith('/auth/login') ? 'Invalid login ID or password.' : 'Your session has expired. Please log in again.');
     case 403:
       return 'You do not have permission to perform this action.';
     case 404:

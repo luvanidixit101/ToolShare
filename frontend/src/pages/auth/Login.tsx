@@ -30,7 +30,7 @@ export default function Login() {
       navigate(redirectTarget || (from !== '/auth/login' ? from : '/'), { replace: true });
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e?.message || 'Login failed. Please check your credentials.');
+      setError(e?.message || 'Invalid login ID or password.');
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ export default function Login() {
       navigate(destination, { replace: true });
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e?.message || 'Login failed. Please check your credentials.');
+      setError(e?.message || 'Invalid login ID or password.');
     } finally {
       setLoading(false);
     }

@@ -63,10 +63,10 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         AppUser user = userRepository.findByEmailIgnoreCase(request.email())
-                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid login ID or password"));
 
         if (!user.isEnabled() || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid login ID or password");
         }
 
         log.info("Authenticated user {}", user.getId());
