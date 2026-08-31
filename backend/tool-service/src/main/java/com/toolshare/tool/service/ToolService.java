@@ -1,5 +1,6 @@
 package com.toolshare.tool.service;
 
+import com.toolshare.tool.dto.CreateReviewRequest;
 import com.toolshare.tool.dto.PagedResponse;
 import com.toolshare.tool.dto.ReviewResponse;
 import com.toolshare.tool.dto.ToolPatchRequest;
@@ -7,8 +8,10 @@ import com.toolshare.tool.dto.ToolRequest;
 import com.toolshare.tool.dto.ToolResponse;
 import com.toolshare.tool.dto.ToolStatusRequest;
 import com.toolshare.tool.exception.ApiException;
+import com.toolshare.tool.model.Review;
 import com.toolshare.tool.model.Tool;
 import com.toolshare.tool.model.ToolStatus;
+import com.toolshare.tool.repository.ReviewRepository;
 import com.toolshare.tool.repository.ToolRepository;
 import com.toolshare.tool.security.CurrentUser;
 import jakarta.persistence.criteria.Predicate;
@@ -36,9 +39,11 @@ public class ToolService {
     private static final Logger log = LoggerFactory.getLogger(ToolService.class);
 
     private final ToolRepository repository;
+    private final ReviewRepository reviewRepository;
 
-    public ToolService(ToolRepository repository) {
+    public ToolService(ToolRepository repository, ReviewRepository reviewRepository) {
         this.repository = repository;
+        this.reviewRepository = reviewRepository;
     }
 
     @Transactional(readOnly = true)
@@ -140,9 +145,53 @@ public class ToolService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ReviewResponse> reviews(UUID toolId) {
         find(toolId);
-        return List.of();
+        return reviewRepository.findByToolIdOrderByCreatedAtDesc(toolId)
+                .stream()
+                .map(this::toReviewResponse)
+                .toList();
+    }
+
+    @Transactional
+    @SuppressWarnings("null")
+    public ReviewResponse addReview(UUID toolId, CreateReviewRequest request, CurrentUser currentUser) {
+        Tool tool = find(toolId);
+
+        Review review = new Review();
+        review.setToolId(toolId);
+        review.setAuthorId(currentUser.id());
+        review.setAuthorName(currentUser.displayName().isBlank() ? currentUser.email() : currentUser.displayName());
+        review.setAuthorAvatar("https://i.pravatar.cc/100?u=" + currentUser.id());
+        review.setRating(request.rating());
+        review.setComment(request.comment().trim());
+
+        Review saved = reviewRepository.save(review);
+
+        // Recalculate tool average rating & count
+        List<Review> allReviews = reviewRepository.findByToolIdOrderByCreatedAtDesc(toolId);
+        int count = allReviews.size();
+        double avg = allReviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+
+        tool.setReviewCount(count);
+        tool.setRating(BigDecimal.valueOf(avg).setScale(1, java.math.RoundingMode.HALF_UP));
+        repository.save(tool);
+
+        log.info("Added review for tool {} by user {}", toolId, currentUser.id());
+        return toReviewResponse(saved);
+    }
+
+    private ReviewResponse toReviewResponse(Review review) {
+        return new ReviewResponse(
+                review.getId(),
+                review.getToolId(),
+                review.getAuthorName(),
+                review.getAuthorAvatar(),
+                review.getRating(),
+                review.getComment(),
+                review.getCreatedAt()
+        );
     }
 
     @SuppressWarnings("null")

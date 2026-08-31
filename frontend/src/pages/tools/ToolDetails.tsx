@@ -4,7 +4,7 @@ import {
   MapPin, Heart, Share2, Calendar, Shield, Star, ChevronLeft, ChevronRight,
   ArrowLeft, CheckCircle2, User as UserIcon, Phone,
 } from 'lucide-react';
-import { getToolById, getReviews } from '@/services/toolService';
+import { getToolById, getReviews, addReview } from '@/services/toolService';
 import type { Tool, Review } from '@/types';
 import { formatPrice, formatDate, conditionLabels, classNames, getToolImage, SVG_FALLBACK_IMAGE } from '@/utils';
 import StarRating from '@/components/common/StarRating';
@@ -26,7 +26,43 @@ export default function ToolDetails() {
   const [fav, setFav] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
 
+  // Review submission state
+  const [newRating, setNewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [newComment, setNewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   const isOwner = !!user && !!tool && user.id === tool.ownerId;
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !newComment.trim()) return;
+    if (!isAuthenticated) {
+      toast('info', 'Please sign in to leave a comment or review.');
+      navigate('/auth/login', { state: { from: `/tools/${id}` } });
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      const savedReview = await addReview(id, newRating, newComment.trim());
+      toast('success', 'Thank you! Your review has been posted.');
+      setReviews((prev) => [savedReview, ...prev]);
+      setNewComment('');
+      setNewRating(5);
+
+      setTool((prev) => {
+        if (!prev) return null;
+        const newCount = prev.reviewCount + 1;
+        const newAvg = Number((((prev.rating * prev.reviewCount) + newRating) / newCount).toFixed(1));
+        return { ...prev, rating: newAvg, reviewCount: newCount };
+      });
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast('error', e?.message || 'Failed to post review. Please try again.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -161,9 +197,69 @@ export default function ToolDetails() {
             )}
           </div>
 
-          {/* Reviews */}
+          {/* Reviews & Comment Section */}
           <div className="mt-4 card p-5">
-            <h2 className="font-semibold text-gray-900 mb-4">Reviews ({reviews.length})</h2>
+            <h2 className="font-semibold text-gray-900 mb-4">Reviews & Comments ({reviews.length})</h2>
+
+            {/* Comment Form */}
+            <div className="mb-6 p-4 rounded-xl bg-gray-50 border border-gray-200/70">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Leave a Comment & Review</h3>
+              {isAuthenticated ? (
+                <form onSubmit={handleReviewSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">Your Rating</label>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const active = star <= (hoverRating || newRating);
+                        return (
+                          <button
+                            type="button"
+                            key={star}
+                            onClick={() => setNewRating(star)}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            className="p-1 text-amber-400 hover:scale-110 transition-transform focus:outline-none"
+                          >
+                            <Star size={20} className={active ? 'fill-amber-400 text-amber-400' : 'text-gray-300'} />
+                          </button>
+                        );
+                      })}
+                      <span className="text-xs font-semibold text-gray-700 ml-2">{newRating} / 5</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Write your review or comment about this tool..."
+                      rows={3}
+                      className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={submittingReview || !newComment.trim()}
+                      className="btn-primary text-sm px-5 py-2 disabled:opacity-50"
+                    >
+                      {submittingReview ? 'Posting...' : 'Post Comment & Review'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="flex items-center justify-between py-2 text-sm text-gray-600">
+                  <span>Sign in to write a comment or review for this tool.</span>
+                  <Link to="/auth/login" state={{ from: `/tools/${id}` }} className="btn-secondary text-xs px-3 py-1.5">
+                    Sign In
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Review List */}
             {reviews.length === 0 ? (
               <p className="text-sm text-gray-400">No reviews yet. Be the first to review!</p>
             ) : (
