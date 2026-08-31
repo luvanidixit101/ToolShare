@@ -17,10 +17,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.toolshare.tool.repository.ReviewRepository;
+
 class ToolServiceTest {
 
     private final ToolRepository repository = mock(ToolRepository.class);
-    private final ToolService service = new ToolService(repository);
+    private final ReviewRepository reviewRepository = mock(ReviewRepository.class);
+    private final ToolService service = new ToolService(repository, reviewRepository);
 
     @Test
     @SuppressWarnings("null")

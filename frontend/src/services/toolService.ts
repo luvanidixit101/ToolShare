@@ -1,4 +1,4 @@
-import api from './api';
+import api, { getStoredUser } from './api';
 import {
   mockGetTools,
   mockGetToolById,
@@ -91,6 +91,25 @@ export async function getReviews(toolId: string): Promise<Review[]> {
   return (Array.isArray(body) ? body : []).map(mapReview);
 }
 
+export async function addReview(toolId: string, rating: number, comment: string): Promise<Review> {
+  if (USE_MOCK) {
+    const user = getStoredUser();
+    const newRev: Review = {
+      id: 'rev-' + Date.now(),
+      toolId,
+      authorName: user ? `${user.firstName} ${user.lastName}` : 'Guest User',
+      authorAvatar: `https://i.pravatar.cc/100?u=${user?.id || 'guest'}`,
+      rating,
+      comment,
+      createdAt: new Date().toISOString(),
+    };
+    return newRev;
+  }
+  const { data } = await api.post(`/tools/${toolId}/reviews`, { rating, comment });
+  const body = unwrapData<Record<string, unknown>>(data);
+  return mapReview(body);
+}
+
 export async function getCategories(): Promise<string[]> {
   if (USE_MOCK) {
     const { CATEGORIES } = await import('./mockData');
@@ -100,4 +119,4 @@ export async function getCategories(): Promise<string[]> {
   return unwrapData<string[]>(data) ?? [];
 }
 
-export default { getTools, getToolById, createTool, updateTool, deleteTool, getMyTools, getReviews, getCategories };
+export default { getTools, getToolById, createTool, updateTool, deleteTool, getMyTools, getReviews, addReview, getCategories };
