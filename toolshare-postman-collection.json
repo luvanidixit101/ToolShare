@@ -47,7 +47,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Test@1234\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}"
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Test@1234\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"phone\": \"+919876543210\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -113,6 +113,61 @@
                 "api",
                 "auth",
                 "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Google Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var data = res.data || res;",
+                  "    if (data.token) {",
+                  "        pm.collectionVariables.set('jwtToken', data.token);",
+                  "        pm.environment.set('jwtToken', data.token);",
+                  "    }",
+                  "    if (data.refreshToken) {",
+                  "        pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "        pm.environment.set('refreshToken', data.refreshToken);",
+                  "    }",
+                  "    var uid = data.userId || data.id;",
+                  "    if (uid) {",
+                  "        pm.collectionVariables.set('userId', uid);",
+                  "        pm.environment.set('userId', uid);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"mock_google_testuser\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "google"
               ]
             }
           },
@@ -1163,7 +1218,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 49.99,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"cardHolderName\": \"John Doe\",\n  \"cardNumber\": \"4111222233334444\",\n  \"cardExpiry\": \"12/28\",\n  \"cardCvv\": \"123\"\n}"
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 49.99,\n  \"currency\": \"INR\",\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"cardHolderName\": \"John Doe\",\n  \"cardNumber\": \"4111222233334444\",\n  \"cardExpiry\": \"12/28\",\n  \"cardCvv\": \"123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/payments/create",
