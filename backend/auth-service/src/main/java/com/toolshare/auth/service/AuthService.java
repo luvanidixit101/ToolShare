@@ -74,6 +74,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public AuthResponse refresh(RefreshTokenRequest request) {
         Jwt jwt = jwtDecoder.decode(request.refreshToken());
         if (!"refresh".equals(jwt.getClaimAsString("token_type"))) {

@@ -45,6 +45,7 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public PaymentResponse getPayment(UUID paymentId, CurrentUser currentUser) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Payment not found"));
@@ -57,6 +58,7 @@ public class PaymentService {
     }
 
     @Transactional
+    @SuppressWarnings("null")
     public PaymentResponse confirmMockPayment(UUID paymentId, CurrentUser currentUser) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Payment not found"));
@@ -75,6 +77,7 @@ public class PaymentService {
     }
 
     @Transactional
+    @SuppressWarnings("null")
     public PaymentResponse failMockPayment(UUID paymentId, CurrentUser currentUser) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Payment not found"));

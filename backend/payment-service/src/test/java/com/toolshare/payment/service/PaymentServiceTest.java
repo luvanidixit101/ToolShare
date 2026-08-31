@@ -23,6 +23,7 @@ class PaymentServiceTest {
     private final PaymentService service = new PaymentService(paymentRepository);
 
     @Test
+    @SuppressWarnings("null")
     void createPaymentCreatesPendingPayment() {
         UUID userId = UUID.randomUUID();
         UUID bookingId = UUID.randomUUID();
@@ -40,6 +41,7 @@ class PaymentServiceTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void confirmPaymentRequiresOwnerOrPayerAccess() {
         UUID bookingId = UUID.randomUUID();
         UUID payerId = UUID.randomUUID();

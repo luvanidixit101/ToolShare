@@ -59,6 +59,7 @@ public class GeminiService {
         this.objectMapper = objectMapper;
     }
 
+    @SuppressWarnings("null")
     public String generateResponse(List<AiMessage> history) {
 
         List<Map<String, Object>> contents = new ArrayList<>();

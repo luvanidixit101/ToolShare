@@ -23,6 +23,7 @@ class ToolServiceTest {
     private final ToolService service = new ToolService(repository);
 
     @Test
+    @SuppressWarnings("null")
     void patchRejectsNonOwner() {
         UUID ownerId = UUID.randomUUID();
         Tool tool = new Tool();
