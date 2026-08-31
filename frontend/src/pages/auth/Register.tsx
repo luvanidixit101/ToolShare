@@ -6,6 +6,8 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/components/common/Toast';
 import { classNames } from '@/utils';
 
+import { GoogleLoginButton } from '@/components/common/GoogleLoginButton';
+
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -73,6 +75,23 @@ export default function Register() {
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
+        <GoogleLoginButton
+          label="Sign up with Google"
+          onSuccess={() => {
+            toast('success', 'Google Registration successful!');
+            navigate('/', { replace: true });
+          }}
+          onError={(err) => setError(err)}
+        />
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500 font-medium">Or register with email</span>
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="label">First Name</label>

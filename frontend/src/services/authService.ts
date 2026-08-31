@@ -72,6 +72,29 @@ export async function logout(): Promise<void> {
   }
 }
 
+export async function googleLogin(idToken: string): Promise<AuthUser> {
+  if (USE_MOCK || idToken.startsWith('mock_google_')) {
+    await new Promise((r) => setTimeout(r, 600));
+    const user: AuthUser = {
+      id: 'g-user-' + Date.now(),
+      firstName: 'Google',
+      lastName: 'User',
+      email: idToken.startsWith('mock_google_')
+        ? `${idToken.replace('mock_google_', '')}@gmail.com`
+        : 'google.user@example.com',
+      token: 'mock-google-jwt-token-' + Date.now(),
+      role: 'USER',
+    };
+    storeAuth(user);
+    return user;
+  }
+  const { data } = await api.post('/auth/google', { idToken });
+  const auth = unwrapData<Record<string, unknown>>(data);
+  const user = mapAuthUser(auth);
+  storeAuth(user);
+  return user;
+}
+
 export function getCurrentUser(): AuthUser | null {
   return getStoredUser();
 }
@@ -84,4 +107,4 @@ export async function forgotPassword(email: string): Promise<void> {
   await api.post('/auth/forgot-password', { email });
 }
 
-export default { login, register, logout, getCurrentUser, forgotPassword };
+export default { login, register, googleLogin, logout, getCurrentUser, forgotPassword };

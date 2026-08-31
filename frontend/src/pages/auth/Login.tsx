@@ -5,6 +5,8 @@ import AuthLayout from '@/components/layout/AuthLayout';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/components/common/Toast';
 
+import { GoogleLoginButton } from '@/components/common/GoogleLoginButton';
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -115,6 +117,23 @@ export default function Login() {
         <button type="submit" disabled={loading} className="btn-primary w-full py-3">
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500 font-medium">Or continue with</span>
+          </div>
+        </div>
+
+        <GoogleLoginButton
+          onSuccess={() => {
+            toast('success', 'Google Login successful!');
+            navigate(from !== '/auth/login' ? from : '/', { replace: true });
+          }}
+          onError={(err) => setError(err)}
+        />
 
         {/* Quick Fill Demo Logins */}
         <div className="pt-4 border-t border-gray-100">
