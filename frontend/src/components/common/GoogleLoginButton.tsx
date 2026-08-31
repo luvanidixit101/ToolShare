@@ -30,9 +30,9 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
   const { googleLogin } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [googleClientId] = useState<string>(
-    import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
-  );
+  const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const isRealClientId = rawClientId.trim() !== '' && !rawClientId.includes('your-google-client-id');
+  const googleClientId = isRealClientId ? rawClientId.trim() : '';
 
   useEffect(() => {
     if (!googleClientId) return;
@@ -73,6 +73,7 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       window.google.accounts.id.prompt();
       return;
     }
+
 
     // Interactive Fallback / Developer Mode when Google Client ID is not yet set in .env
     try {
